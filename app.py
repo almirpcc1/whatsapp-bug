@@ -1380,7 +1380,7 @@ def ultra_speed_heroku_optimized():
         if not leads:
             return jsonify({'error': 'Nenhum lead válido encontrado'}), 400
         
-        # Create session for tracking
+        # Create session for tracking with CRITICAL debug
         session_id = str(int(time.time()))
         message_counters[session_id] = {
             'total': len(leads),
@@ -1389,6 +1389,10 @@ def ultra_speed_heroku_optimized():
             'status': 'running',
             'start_time': time.time()
         }
+        
+        # HEROKU DEBUG: Log session creation
+        logging.info(f"🔍 SESSION CREATED: {session_id} - Total leads: {len(leads)}")
+        logging.info(f"🔍 MESSAGE COUNTERS: {message_counters[session_id]}")
         
         # Ultra-fast processing in background
         def process_ultra_fast():
@@ -1456,17 +1460,25 @@ def ultra_speed_heroku_optimized():
                                 nonlocal total_sent
                                 total_sent += 1
                                 message_counters[session_id]['sent'] += 1
+                                # HEROKU DEBUG: Log progress updates
+                                if message_counters[session_id]['sent'] % 5 == 0:  # Log every 5 messages
+                                    logging.info(f"🔍 PROGRESS UPDATE: {message_counters[session_id]['sent']}/{message_counters[session_id]['total']} - Session: {session_id}")
                             return True
                     
                     # Any failure case
                     with counter_lock:
                         message_counters[session_id]['failed'] += 1
+                        # HEROKU DEBUG: Log failures occasionally
+                        if message_counters[session_id]['failed'] % 5 == 0:
+                            logging.info(f"🔍 FAILURE UPDATE: {message_counters[session_id]['failed']} failures - Session: {session_id}")
                     return False
                 
-                except Exception:
-                    # Silent failure handling for 10K workers
+                except Exception as e:
+                    # Enhanced failure handling for Heroku debugging
                     with counter_lock:
                         message_counters[session_id]['failed'] += 1
+                        # HEROKU DEBUG: Log exceptions
+                        logging.warning(f"🔍 EXCEPTION in send_single: {str(e)[:100]} - Session: {session_id}")
                     return False
             
             # Rate-limited processing to prevent API limits
@@ -1507,7 +1519,11 @@ def ultra_speed_heroku_optimized():
             # Final memory cleanup and status update
             gc.collect()
             logging.info(f"⚡ MAXIMUM VELOCITY COMPLETE: {total_sent} sent from {len(leads)} leads - {max_workers} workers used")
-            message_counters[session_id]['status'] = 'completed'
+            
+            # HEROKU DEBUG: Final status update
+            with counter_lock:
+                message_counters[session_id]['status'] = 'completed'
+                logging.info(f"🔍 FINAL STATUS: Session {session_id} completed - {message_counters[session_id]}")
         
         # Start HEROKU optimized background processing
         import threading
@@ -1538,8 +1554,13 @@ def ultra_speed_heroku_optimized():
 @app.route('/api/progress/<session_id>')
 def get_progress(session_id):
     """Get real-time progress for a session"""
+    # HEROKU DEBUG: Log progress request
+    logging.info(f"🔍 PROGRESS REQUEST: Session {session_id}")
+    logging.info(f"🔍 AVAILABLE SESSIONS: {list(message_counters.keys())}")
+    
     counter = message_counters.get(session_id, {})
     if not counter:
+        logging.warning(f"🔍 SESSION NOT FOUND: {session_id}")
         return jsonify({
             'success': False,
             'error': 'Session not found'
@@ -1548,6 +1569,9 @@ def get_progress(session_id):
     progress_percent = 0
     if counter['total'] > 0:
         progress_percent = (counter['sent'] / counter['total']) * 100
+    
+    # HEROKU DEBUG: Log progress data
+    logging.info(f"🔍 PROGRESS DATA: {counter['sent']}/{counter['total']} = {progress_percent}%")
     
     return jsonify({
         'success': True,
