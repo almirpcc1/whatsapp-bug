@@ -235,7 +235,27 @@ class WhatsAppSender {
         // Update counters
         document.getElementById('validCount').textContent = result.total_valid;
         document.getElementById('errorCount').textContent = result.total_errors;
-        document.getElementById('totalCount').textContent = result.total_valid + result.total_errors;
+        document.getElementById('totalCount').textContent = result.original_count || (result.total_valid + result.total_errors);
+        
+        // Show duplicate filter information if present
+        if (result.filtered_count > 0) {
+            const duplicateInfo = document.createElement('div');
+            duplicateInfo.className = 'alert alert-info mt-2';
+            duplicateInfo.innerHTML = `
+                <i class="fas fa-filter me-2"></i>
+                <strong>Filtro Anti-Duplicação:</strong> ${result.filtered_count} leads removidos (já foram enviados anteriormente).
+                ${result.already_sent && result.already_sent.length > 0 ? 
+                    `<div class="mt-2"><small>Exemplos: ${result.already_sent.slice(0, 3).map(lead => `${lead.nome} (${lead.numero})`).join(', ')}</small></div>` : ''}
+            `;
+            
+            // Remove any existing duplicate info
+            const existingInfo = validationDiv.querySelector('.alert-info');
+            if (existingInfo) {
+                existingInfo.remove();
+            }
+            
+            validationDiv.appendChild(duplicateInfo);
+        }
         
         // Show/hide errors
         const errorsDiv = document.getElementById('validationErrors');
@@ -256,7 +276,11 @@ class WhatsAppSender {
         // Update smart distribution info
         this.updateDistributionInfo(result.total_valid);
         
-        if (result.total_valid > 0) {
+        // Show appropriate alert message
+        if (result.summary) {
+            const alertType = result.filtered_count > 0 ? 'info' : 'success';
+            this.showAlert(result.summary, alertType);
+        } else if (result.total_valid > 0) {
             this.showAlert(`✅ ${result.total_valid} leads válidos encontrados!`, 'success');
         }
     }

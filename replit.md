@@ -545,3 +545,9 @@ Changelog:
 - July 29, 2025. REMOVED REDUNDANT BM FIELDS: Eliminated duplicate BM ID fields from configuration sections
 - July 29, 2025. BACKEND ENDPOINT `/api/connect-whatsapp`: Handles dynamic connections with auto-discovery features
 - July 29, 2025. LOCALSTORAGE PERSISTENCE: Connection data persists between browser sessions for improved UX
+- July 29, 2025. DATABASE ANTI-DUPLICAÇÃO IMPLEMENTADO: Modelo `SentNumber` rastreia números enviados com sucesso
+- July 29, 2025. FILTRO AUTOMÁTICO LEADS: Endpoint `/api/validate-leads` remove automaticamente números já enviados
+- July 29, 2025. SALVAMENTO AUTOMÁTICO: Sistema ultra-speed salva números enviados no banco automaticamente
+- July 29, 2025. INTERFACE ANTI-DUPLICAÇÃO: Frontend mostra leads filtrados com informações detalhadas sobre duplicatas
+- July 29, 2025. PÁGINA ADMINISTRATIVA: `/admin/sent-numbers` permite visualizar e gerenciar números enviados
+- July 29, 2025. GESTÃO COMPLETA DUPLICATAS: Funcionalidades para limpar todos números ou remover individualmente

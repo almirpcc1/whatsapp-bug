@@ -119,3 +119,59 @@ class MessageStatus(db.Model):
             'error_message': self.error_message,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+class SentNumber(db.Model):
+    """Model para rastrear números que já receberam mensagens com sucesso"""
+    __tablename__ = 'sent_numbers'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    phone_number = db.Column(db.String(20), unique=True, nullable=False, index=True)
+    lead_name = db.Column(db.String(100))
+    lead_cpf = db.Column(db.String(14))
+    first_sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    total_sent = db.Column(db.Integer, default=1)
+    last_campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'))
+    last_message_id = db.Column(db.String(100))  # WhatsApp message ID
+    
+    def __repr__(self):
+        return f'<SentNumber {self.phone_number}>'
+    
+    @classmethod
+    def add_sent_number(cls, phone_number, lead_name=None, lead_cpf=None, campaign_id=None, message_id=None):
+        """Adiciona ou atualiza um número enviado"""
+        existing = cls.query.filter_by(phone_number=phone_number).first()
+        
+        if existing:
+            # Atualizar registro existente
+            existing.last_sent_at = datetime.utcnow()
+            existing.total_sent += 1
+            if lead_name:
+                existing.lead_name = lead_name
+            if lead_cpf:
+                existing.lead_cpf = lead_cpf
+            if campaign_id:
+                existing.last_campaign_id = campaign_id
+            if message_id:
+                existing.last_message_id = message_id
+            return existing
+        else:
+            # Criar novo registro
+            sent_number = cls(
+                phone_number=phone_number,
+                lead_name=lead_name,
+                lead_cpf=lead_cpf,
+                last_campaign_id=campaign_id,
+                last_message_id=message_id
+            )
+            return sent_number
+    
+    @classmethod
+    def is_sent(cls, phone_number):
+        """Verifica se um número já recebeu mensagem"""
+        return cls.query.filter_by(phone_number=phone_number).first() is not None
+    
+    @classmethod
+    def get_sent_numbers(cls):
+        """Retorna lista de todos os números que já receberam mensagens"""
+        return {record.phone_number for record in cls.query.all()}

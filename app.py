@@ -69,6 +69,95 @@ def index():
     """Main page with the messaging interface"""
     return render_template('index.html')
 
+@app.route('/admin/sent-numbers')
+def admin_sent_numbers():
+    """Admin page to view and manage sent numbers"""
+    try:
+        from models import SentNumber
+        
+        # Get pagination parameters
+        page = request.args.get('page', 1, type=int)
+        per_page = 50
+        
+        # Get search parameter
+        search = request.args.get('search', '', type=str)
+        
+        # Build query
+        query = SentNumber.query
+        
+        if search:
+            query = query.filter(
+                db.or_(
+                    SentNumber.phone_number.contains(search),
+                    SentNumber.lead_name.contains(search),
+                    SentNumber.lead_cpf.contains(search)
+                )
+            )
+        
+        # Order by most recent first
+        query = query.order_by(SentNumber.last_sent_at.desc())
+        
+        # Paginate
+        sent_numbers = query.paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
+        # Get statistics
+        total_sent = SentNumber.query.count()
+        
+        return render_template('admin_sent_numbers.html', 
+                             sent_numbers=sent_numbers,
+                             total_sent=total_sent,
+                             search=search)
+        
+    except Exception as e:
+        logging.error(f"Error loading admin sent numbers: {str(e)}")
+        return render_template('error.html', error=str(e))
+
+@app.route('/admin/clear-sent-numbers', methods=['POST'])
+def clear_sent_numbers():
+    """Clear all sent numbers from database"""
+    try:
+        from models import SentNumber
+        
+        count = SentNumber.query.count()
+        SentNumber.query.delete()
+        db.session.commit()
+        
+        logging.info(f"Cleared {count} sent numbers from database")
+        
+        return jsonify({
+            'success': True,
+            'message': f'{count} números removidos do banco de dados'
+        })
+        
+    except Exception as e:
+        logging.error(f"Error clearing sent numbers: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/admin/remove-sent-number/<int:number_id>', methods=['DELETE'])
+def remove_sent_number(number_id):
+    """Remove specific sent number from database"""
+    try:
+        from models import SentNumber
+        
+        sent_number = SentNumber.query.get_or_404(number_id)
+        phone = sent_number.phone_number
+        
+        db.session.delete(sent_number)
+        db.session.commit()
+        
+        logging.info(f"Removed sent number {phone} from database")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Número {phone} removido do banco'
+        })
+        
+    except Exception as e:
+        logging.error(f"Error removing sent number: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/save-business-manager-id', methods=['POST'])
 def save_business_manager_id():
     """Salva o último Business Manager ID na sessão"""
@@ -369,21 +458,54 @@ def discover_phones():
 
 @app.route('/api/validate-leads', methods=['POST'])
 def validate_leads():
-    """Validate leads format and return parsed data"""
+    """Validate leads format and return parsed data, filtering already sent numbers"""
     try:
+        from models import SentNumber
+        
         data = request.get_json()
         leads_text = data.get('leads', '').strip()
         
         if not leads_text:
             return jsonify({'error': 'Lista de leads não pode estar vazia'}), 400
         
+        # Parse leads from input
         leads, errors = parse_leads(leads_text)
         
+        # Get set of already sent numbers for efficient lookup
+        sent_numbers = SentNumber.get_sent_numbers()
+        logging.info(f"Encontrados {len(sent_numbers)} números já enviados no banco de dados")
+        
+        # Filter out leads that have already been sent
+        original_count = len(leads)
+        filtered_leads = []
+        already_sent = []
+        
+        for lead in leads:
+            phone_number = lead['numero']
+            if phone_number in sent_numbers:
+                already_sent.append(lead)
+                logging.debug(f"Número já enviado filtrado: {phone_number} - {lead['nome']}")
+            else:
+                filtered_leads.append(lead)
+        
+        # Create summary message
+        summary_message = ""
+        if len(already_sent) > 0:
+            summary_message = f"🔄 {len(already_sent)} leads removidos (já foram enviados anteriormente). "
+        
+        summary_message += f"✅ {len(filtered_leads)} leads válidos prontos para envio."
+        
+        logging.info(f"FILTRO ANTI-DUPLICAÇÃO: {original_count} leads originais → {len(filtered_leads)} leads após filtro (removidos {len(already_sent)} já enviados)")
+        
         return jsonify({
-            'leads': leads,
+            'leads': filtered_leads,
             'errors': errors,
-            'total_valid': len(leads),
-            'total_errors': len(errors)
+            'total_valid': len(filtered_leads),
+            'total_errors': len(errors),
+            'original_count': original_count,
+            'filtered_count': len(already_sent),
+            'already_sent': already_sent[:10],  # Primeiros 10 para referência
+            'summary': summary_message
         })
     
     except Exception as e:
@@ -1370,6 +1492,25 @@ def ultra_speed_heroku_optimized():
                     if success and isinstance(response, dict):
                         message_id = response.get('messageId')
                         if message_id:
+                            # Save successful send to database
+                            try:
+                                from models import SentNumber
+                                from app import db
+                                
+                                sent_number = SentNumber.add_sent_number(
+                                    phone_number=phone,
+                                    lead_name=lead.get('nome'),
+                                    lead_cpf=lead.get('cpf'),
+                                    message_id=message_id
+                                )
+                                db.session.add(sent_number)
+                                db.session.commit()
+                                
+                                logging.debug(f"Número salvo no banco: {phone} - {lead.get('nome')}")
+                            except Exception as db_error:
+                                logging.warning(f"Erro ao salvar no banco: {db_error}")
+                                # Continue mesmo se houver erro no banco
+                            
                             with counter_lock:
                                 nonlocal total_sent
                                 total_sent += 1
