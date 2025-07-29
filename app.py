@@ -1450,15 +1450,26 @@ def ultra_speed_heroku_optimized():
                 logging.error("❌ HEROKU: Session token perdido durante processamento")
                 return
             
-            # HEROKU DEBUG: Log the actual token being used
-            logging.info(f"🔑 PROCESSAMENTO COM TOKEN: {session_token[:50]}...")
+            # HEROKU DEBUG: Log the EXACT token being used - FULL VERIFICATION
+            logging.info(f"🔑 PROCESSAMENTO COM TOKEN: {session_token[:70]}...")
+            logging.info(f"📏 TOKEN LENGTH: {len(session_token)} characters")
             logging.info(f"📱 PHONE IDS PARA USAR: {phone_number_ids}")
             logging.info(f"📝 TEMPLATES PARA USAR: {template_names}")
+            
+            # CRITICAL: Compare with user's exact token
+            user_token = "EAAHUCvWVsdgBPBYPZBBM5wfGDmPCguYTbcmmWlQFGFukbGn5ArSLx2UNcY5KA3Ogb9AJOfAN1OpOoRrfWdNQLlAh9MRs3lreupw2P7JXJiNGTeSN5Y6nWKUM7Alx0rTsscDEIboFWBY62lZCqbKAZBgdZA2RSPMwO94nTrdFEygZAPSMrikHZCJZBuNZBYNujxaZA2lqHKK1pi3lPGTpMhIXpXMTnpZBcKZCmRZAJJNFH9w98565JQZDZD"
+            
+            if session_token == user_token:
+                logging.info("✅ TOKEN MATCH: Using EXACT user token")
+            else:
+                logging.error(f"❌ TOKEN MISMATCH!")
+                logging.error(f"Expected: {user_token[:70]}...")
+                logging.error(f"Got:      {session_token[:70]}...")
             
             # HEROKU CRITICAL: Set token globally for ALL workers to access
             import os
             os.environ['HEROKU_SESSION_TOKEN'] = session_token  # New env var for Heroku
-            logging.info(f"🌍 GLOBAL TOKEN SET: HEROKU_SESSION_TOKEN = {session_token[:30]}...")
+            logging.info(f"🌍 GLOBAL TOKEN SET: HEROKU_SESSION_TOKEN = {session_token[:50]}...")
             
             def send_single(lead_index, lead):
                 try:
