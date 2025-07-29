@@ -1063,6 +1063,13 @@ def send_smart_distribution():
         # Use valid phone IDs for the rest of the process
         phone_number_ids = valid_phone_ids
         
+        # CRÍTICO: Verificar token atual no ultra-speed
+        current_token = os.getenv('WHATSAPP_ACCESS_TOKEN', '')
+        logging.info(f"🔍 TOKEN ATUAL NO ULTRA-SPEED: {current_token[:50] if current_token else 'VAZIO'}...")
+        
+        # Force refresh WhatsApp service before sending
+        whatsapp_service._refresh_credentials()
+        
         logging.info(f"🚀 ULTRA-SPEED SMART DISTRIBUTION INITIATED: {len(leads)} leads, {len(phone_number_ids)} phones, {len(template_names)} templates")
         logging.info(f"⚡ MAXIMUM PARALLEL MODE: Simulating {len(phone_number_ids) * len(template_names) * 20} simultaneous tabs for ultra-fast delivery")
         
@@ -1338,6 +1345,14 @@ def ultra_speed_heroku_optimized():
         leads_text = data.get('leads', '').strip()
         template_names = data.get('template_names', [])
         phone_number_ids = data.get('phone_number_ids', [])
+        
+        # CRÍTICO: Usar token da sessão se disponível
+        connection_data = session.get('whatsapp_connection', {})
+        if connection_data.get('access_token'):
+            os.environ['WHATSAPP_ACCESS_TOKEN'] = connection_data['access_token']
+            logging.info(f"🔑 TOKEN DA SESSÃO APLICADO: {connection_data['access_token'][:50]}...")
+            # Force refresh WhatsApp service
+            whatsapp_service._refresh_credentials()
         
         logging.info(f"🚀 HEROKU ULTRA-SPEED: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}")
         

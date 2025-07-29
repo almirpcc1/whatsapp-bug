@@ -51,6 +51,11 @@ class WhatsAppBusinessAPI:
         # Always get fresh credentials from environment
         new_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
         
+        # FORCE UPDATE: Always update token from environment
+        if new_token:
+            self._access_token = new_token
+            logging.info(f"🔄 Token forçadamente atualizado: {new_token[:50]}...")
+        
         # Auto-detect Business Manager and Phone based on token
         if new_token and new_token != self._last_token_check:
             self._last_token_check = new_token
@@ -670,6 +675,9 @@ Regularizar meu CPF: https://irpf.intimacao.org/{cpf}"""
         Envia template message usando Phone Number ID específico dos 5 phones ativos
         Business Manager 580318035149016 - sem erro #135000
         """
+        # CRITICAL: Always refresh credentials before sending
+        self._refresh_credentials()
+        
         if not self.is_configured():
             return False, {'error': 'WhatsApp Business API não configurada'}
         

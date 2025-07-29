@@ -560,3 +560,6 @@ Changelog:
 - July 29, 2025. CONEXÃO AUTOMÁTICA IMPLEMENTADA: Token da interface agora atualiza automaticamente as variáveis de ambiente
 - July 29, 2025. SISTEMA INTEGRADO: Ao conectar via frontend, todas operações (envio, templates, etc) usam o token fornecido
 - July 29, 2025. REFRESH AUTOMÁTICO: WhatsApp Service atualiza credenciais automaticamente quando conecta
+- July 29, 2025. FORÇAR REFRESH IMPLEMENTADO: WhatsApp Service sempre atualiza token antes de enviar mensagens
+- July 29, 2025. TOKEN SESSÃO ULTRA-SPEED: Endpoint ultra-speed agora verifica e usa token da sessão automaticamente
+- July 29, 2025. REFRESH COMPLETO: Método send_template_message sempre atualiza credenciais antes de enviar
