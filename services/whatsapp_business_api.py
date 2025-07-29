@@ -31,8 +31,8 @@ class WhatsAppBusinessAPI:
             status_forcelist=[429, 500, 502, 503, 504],
         )
         adapter = HTTPAdapter(
-            pool_connections=3000,  # MASSIVE connection pool for maximum velocity
-            pool_maxsize=3000,  # 3000 connections per adapter for ultra-speed
+            pool_connections=10000,  # ULTRA SUPREME connection pool for 100K workers
+            pool_maxsize=100000,    # 100K connections per adapter for 60-second processing
             max_retries=retry_strategy
         )
         self.session.mount("http://", adapter)
@@ -42,7 +42,7 @@ class WhatsAppBusinessAPI:
         self._refresh_credentials()
         
         if self._access_token:
-            logging.info("WhatsApp Business API initialized - MAXIMUM VELOCITY com 3000 conexões simultâneas")
+            logging.info("WhatsApp Business API initialized - ULTRA SUPREME VELOCITY com 100K conexões simultâneas")
         else:
             logging.warning("WhatsApp Business API credentials not found in environment variables")
     

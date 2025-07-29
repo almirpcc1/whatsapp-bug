@@ -1336,17 +1336,18 @@ def whatsapp_webhook():
 def ultra_speed_heroku_optimized():
     """HEROKU OPTIMIZED Ultra-speed endpoint with maximum Performance Dyno utilization"""
     try:
-        # ABSOLUTE MAXIMUM VELOCITY Configuration for 20K+ leads
+        # ULTRA SUPREME VELOCITY Configuration - 60 SECONDS FOR 20K LEADS
         heroku_config = {
-            'max_workers': 50000,       # ABSOLUTE MAXIMUM workers (doubled)
-            'batch_size': 20000,        # MEGA batches - perfect for 20K leads
-            'thread_multiplier': 5000,  # SUPREME parallelism - 2.5x increase  
-            'connection_pool_size': 30000, # INFINITE connection pool - doubled
-            'rate_limit_delay': 0.0000001,  # NANO-minimal delay (0.0001ms) - 10x faster
+            'max_workers': 100000,      # ULTRA SUPREME workers - 100K simultaneous
+            'batch_size': 50000,        # SUPREME MEGA batches - process all at once
+            'thread_multiplier': 10000, # INFINITE parallelism - 2x increase  
+            'connection_pool_size': 100000, # UNLIMITED connection pool - 3x increase
+            'rate_limit_delay': 0.00000001,  # ATOMIC delay (0.00001ms) - 10x faster
             'burst_mode': True,         # Enable burst mode
-            'api_calls_per_second': 50000,  # INFINITE API calls - 5x increase (50K/second)
-            'timeout': 3600,            # 1 hour timeout for massive processing
-            'memory_management': True   # Advanced memory management for massive loads
+            'api_calls_per_second': 333334,  # TARGET: 333K/second for 20K in 60s
+            'timeout': 300,             # 5 minutes max timeout
+            'memory_management': True,  # Advanced memory management
+            'instant_mode': True        # Enable instant processing mode
         }
         
         data = request.get_json()
@@ -1364,10 +1365,10 @@ def ultra_speed_heroku_optimized():
         
         logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
         
-        # CALCULATE ESTIMATED TIME FOR 20K LEADS
-        estimated_time_seconds = len(leads) / (heroku_config['api_calls_per_second'] / 10)  # Conservative estimate
-        estimated_time_minutes = estimated_time_seconds / 60
-        logging.info(f"⏱️  ESTIMATED TIME for {len(leads)} leads: {estimated_time_minutes:.1f} minutes ({estimated_time_seconds:.0f} seconds)")
+        # CALCULATE ESTIMATED TIME FOR 60 SECOND TARGET
+        target_speed = heroku_config['api_calls_per_second'] / 10  # Effective speed considering API overhead
+        estimated_time_seconds = max(60, len(leads) / target_speed)  # Minimum 60 seconds target
+        logging.info(f"⚡ TARGET: {len(leads)} leads in {estimated_time_seconds:.0f} seconds - {target_speed:.0f} effective calls/sec")
         
         if not leads_text or not template_names or not phone_number_ids:
             return jsonify({'error': 'Dados obrigatórios ausentes'}), 400
@@ -1491,37 +1492,41 @@ def ultra_speed_heroku_optimized():
             # Rate-limited processing to prevent API limits
             import time
             
-            # ABSOLUTE MAXIMUM VELOCITY - INFINITE SPEED MODE
-            batch_size = min(heroku_config['batch_size'], len(leads))  # Process all leads in single batch if possible
-            # Calculate INFINITE workers - NO LIMITS, ABSOLUTE MAXIMUM SPEED
-            optimal_workers = min(heroku_config['max_workers'], len(leads) * 100, 50000)  # 100x multiplier, up to 50K workers
-            max_workers = optimal_workers  # INFINITE scaling based on leads  
-            delay_between_batches = heroku_config['rate_limit_delay']  # NANO-minimal delay (0.0000001s)
+            # ULTRA SUPREME VELOCITY - 60 SECOND MODE
+            batch_size = len(leads)  # Process ALL leads in SINGLE batch for maximum speed
+            # Calculate SUPREME workers - TARGET: 60 SECONDS FOR 20K
+            target_workers_per_lead = max(5, int(333334 / len(leads)))  # Dynamic scaling for 60s target
+            optimal_workers = min(heroku_config['max_workers'], len(leads) * target_workers_per_lead)
+            max_workers = optimal_workers  # SUPREME scaling for 60-second target
+            delay_between_batches = 0  # ZERO delay for instant processing
             
-            # BATCH PROCESSING - Prevents thread exhaustion and system crashes
+            # ULTRA SUPREME PROCESSING - SINGLE BATCH ALL LEADS
             import gc
             import time
             
-            for batch_start in range(0, len(leads), batch_size):
-                batch_end = min(batch_start + batch_size, len(leads))
-                batch_leads = leads[batch_start:batch_end]
+            # Process ALL leads in SINGLE BATCH for 60-second target
+            logging.info(f"🚀 ULTRA SUPREME MODE: Processing {len(leads)} leads with {max_workers} workers in SINGLE BATCH")
+            
+            # Single mega-batch processing for maximum speed
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit ALL leads simultaneously for maximum parallelism
+                futures = [executor.submit(send_single, i, lead) for i, lead in enumerate(leads)]
                 
-                # Process batch with controlled parallelism
-                with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                    futures = []
-                    for i, lead in enumerate(batch_leads):
-                        lead_index = batch_start + i
-                        future = executor.submit(send_single, lead_index, lead)
-                        futures.append(future)
-                    
-                    # Wait for batch completion with extended timeout for large batches
-                    concurrent.futures.wait(futures, timeout=300)  # 5 minutes for large batches
+                # Use as_completed for real-time progress tracking
+                completed = 0
+                start_time = time.time()
                 
-                # Memory cleanup and brief pause for system stability
-                gc.collect()
-                if batch_end < len(leads):
-                    time.sleep(delay_between_batches)
-                    logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY BATCH: {batch_end}/{len(leads)} processed - {heroku_config['api_calls_per_second']} calls/sec - {max_workers} workers")
+                for future in concurrent.futures.as_completed(futures, timeout=120):  # 2 minutes max
+                    completed += 1
+                    # Log progress every 1000 completions
+                    if completed % 1000 == 0:
+                        elapsed = time.time() - start_time
+                        rate = completed / elapsed if elapsed > 0 else 0
+                        remaining = len(leads) - completed
+                        eta = remaining / rate if rate > 0 else 0
+                        logging.info(f"⚡ ULTRA SUPREME PROGRESS: {completed}/{len(leads)} - {rate:.0f}/sec - ETA: {eta:.0f}s")
+                
+            logging.info(f"🚀 ULTRA SUPREME COMPLETE: {len(leads)} leads processed in {time.time() - start_time:.1f} seconds")
             
             # Final memory cleanup and status update
             gc.collect()
@@ -1545,8 +1550,8 @@ def ultra_speed_heroku_optimized():
             'leads': len(leads),
             'phones': len(phone_number_ids),
             'templates': len(template_names),
-            'mode': f'ABSOLUTE MAXIMUM VELOCITY MODE - 50K workers, {heroku_config["api_calls_per_second"]} calls/sec, 100x multiplier',
-            'estimated_time_minutes': round(len(leads) / (heroku_config['api_calls_per_second'] / 10) / 60, 1),
+            'mode': f'ULTRA SUPREME VELOCITY MODE - 100K workers, {heroku_config["api_calls_per_second"]} calls/sec - TARGET: 60 SECONDS',
+            'estimated_time_seconds': max(60, round(len(leads) / (heroku_config['api_calls_per_second'] / 10))),
             'max_workers': heroku_config['max_workers'],
             'batch_size': heroku_config['batch_size'],
             'api_rate': heroku_config['api_calls_per_second'],
