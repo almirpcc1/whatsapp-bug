@@ -8,6 +8,7 @@ class WhatsAppBulkSender {
     initializeElements() {
         // Connection elements
         this.accessTokenInput = document.getElementById('accessToken');
+        this.businessManagerIdInput = document.getElementById('businessManagerId');
         this.connectBtn = document.getElementById('connectBtn');
         this.connectionStatus = document.getElementById('connectionStatus');
         this.connectionInfo = document.getElementById('connectionInfo');
@@ -68,6 +69,7 @@ class WhatsAppBulkSender {
             try {
                 const data = JSON.parse(stored);
                 this.accessTokenInput.value = data.token || '';
+                this.businessManagerIdInput.value = data.business_manager_id || '';
                 if (data.connected) {
                     this.setConnectionState(true, data);
                 }
@@ -79,6 +81,8 @@ class WhatsAppBulkSender {
 
     async connectWhatsApp() {
         const token = this.accessTokenInput.value.trim();
+        const businessManagerId = this.businessManagerIdInput.value.trim();
+        
         if (!token) {
             this.showAlert('error', 'Token de acesso é obrigatório');
             return;
@@ -86,20 +90,25 @@ class WhatsAppBulkSender {
 
         this.setButtonLoading(this.connectBtn, true);
 
+        const requestBody = { access_token: token };
+        if (businessManagerId) {
+            requestBody.business_manager_id = businessManagerId;
+        }
+
         try {
             const response = await fetch('/api/connect-whatsapp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ access_token: token })
+                body: JSON.stringify(requestBody)
             });
 
             const data = await response.json();
 
             if (response.ok && data.success) {
                 this.setConnectionState(true, data);
-                this.storeConnection(token, data);
+                this.storeConnection(token, businessManagerId, data);
                 this.showAlert('success', 'Conectado com sucesso ao WhatsApp Business API');
             } else {
                 this.showAlert('error', data.error || 'Erro ao conectar');
@@ -173,9 +182,10 @@ class WhatsAppBulkSender {
         });
     }
 
-    storeConnection(token, data) {
+    storeConnection(token, businessManagerId, data) {
         const connectionData = {
             token: token,
+            business_manager_id: businessManagerId,
             connected: true,
             ...data
         };
@@ -185,6 +195,7 @@ class WhatsAppBulkSender {
     disconnect() {
         this.setConnectionState(false);
         this.accessTokenInput.value = '';
+        this.businessManagerIdInput.value = '';
         localStorage.removeItem('whatsapp_connection');
         this.resetValidation();
         this.showAlert('info', 'Desconectado do WhatsApp Business API');

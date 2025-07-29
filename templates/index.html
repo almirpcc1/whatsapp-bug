@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="grid grid-cols-3" id="connectionForm">
+                        <div class="grid grid-cols-4" id="connectionForm">
                             <div class="col-span-2">
                                 <div class="form-group">
                                     <label for="accessToken" class="form-label">Token de Acesso WhatsApp Business</label>
@@ -60,7 +60,20 @@
                                            placeholder="EAAxxxxxxxxxxxxxxxxxx">
                                     <div class="form-text">
                                         <i class="fas fa-info-circle"></i>
-                                        Token será usado para descobrir automaticamente Business Manager e Phone Numbers
+                                        Token de acesso do WhatsApp Business API
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-span-1">
+                                <div class="form-group">
+                                    <label for="businessManagerId" class="form-label">Business Manager ID</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="businessManagerId" 
+                                           placeholder="123456789">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        ID da Business Manager (opcional)
                                     </div>
                                 </div>
                             </div>
