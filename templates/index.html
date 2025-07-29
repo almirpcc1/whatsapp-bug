@@ -130,25 +130,36 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <!-- Phone Selection -->
+                        <!-- Phone Numbers Distribution -->
                         <div class="form-group">
-                            <label for="phoneSelect" class="form-label">Phone Number Ativo</label>
-                            <select class="form-control" id="phoneSelect" disabled>
-                                <option value="">Conecte-se primeiro para carregar números</option>
-                            </select>
-                            <div class="form-text">
-                                Selecione o número do WhatsApp para envio das mensagens
+                            <label class="form-label">Distribuição Automática</label>
+                            <div id="phoneDistribution" style="display: none;">
+                                <div class="alert alert-info">
+                                    <div class="font-semibold">Distribuição Inteligente Ativada</div>
+                                    <div class="text-sm" id="distributionInfo">Sistema distribuirá automaticamente entre todos os números disponíveis</div>
+                                </div>
+                                <div id="phoneList" class="phone-list">
+                                    <!-- Phone numbers will be shown here -->
+                                </div>
+                            </div>
+                            <div id="phonePlaceholder" class="form-control-placeholder">
+                                Conecte-se primeiro para carregar números
                             </div>
                         </div>
 
                         <!-- Template Selection -->
                         <div class="form-group">
-                            <label for="templateSelect" class="form-label">Template Aprovado</label>
-                            <select class="form-control" id="templateSelect" disabled>
-                                <option value="">Conecte-se primeiro para carregar templates</option>
-                            </select>
-                            <div class="form-text">
-                                Apenas templates aprovados pelo WhatsApp Business podem ser usados
+                            <label class="form-label">Templates Aprovados (Selecione múltiplos)</label>
+                            <div class="template-selection" id="templateSelection" style="display: none;">
+                                <div class="form-text mb-3">
+                                    Sistema distribuirá automaticamente entre os templates selecionados
+                                </div>
+                                <div id="templateCheckboxes" class="checkbox-group">
+                                    <!-- Templates will be populated here -->
+                                </div>
+                            </div>
+                            <div id="templatePlaceholder" class="form-control-placeholder">
+                                Conecte-se primeiro para carregar templates
                             </div>
                         </div>
 
