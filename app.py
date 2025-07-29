@@ -1501,6 +1501,8 @@ def ultra_speed_heroku_optimized():
                     if not phone or len(phone) < 10:
                         with counter_lock:
                             message_counters[session_id]['failed'] += 1
+                            current_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                            message_counters[session_id]['progress'] = (current_processed / message_counters[session_id]['total']) * 100
                         return False
                     
                     if not phone.startswith('+'):
@@ -1511,6 +1513,8 @@ def ultra_speed_heroku_optimized():
                         logging.error(f"❌ VALIDATION FAILED: phone_id={phone_id}, template={template_name}, phone={phone}")
                         with counter_lock:
                             message_counters[session_id]['failed'] += 1
+                            current_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                            message_counters[session_id]['progress'] = (current_processed / message_counters[session_id]['total']) * 100
                         return False
                     
                     # HEROKU CRITICAL: Use global token set in environment
@@ -1536,6 +1540,8 @@ def ultra_speed_heroku_optimized():
                         logging.error(f"❌ INVALID TOKEN LENGTH: {len(worker_token) if worker_token else 0}")
                         with counter_lock:
                             message_counters[session_id]['failed'] += 1
+                            current_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                            message_counters[session_id]['progress'] = (current_processed / message_counters[session_id]['total']) * 100
                         return False
                     
                     # Phone already formatted above - just validate again
@@ -1543,6 +1549,8 @@ def ultra_speed_heroku_optimized():
                         logging.error(f"❌ PHONE VALIDATION FAILED: {lead}")
                         with counter_lock:
                             message_counters[session_id]['failed'] += 1
+                            current_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                            message_counters[session_id]['progress'] = (current_processed / message_counters[session_id]['total']) * 100
                         return False
                     
                     # Send with optimized error handling
@@ -1560,7 +1568,9 @@ def ultra_speed_heroku_optimized():
                             # CRITICAL: Update counter FIRST before database
                             with counter_lock:
                                 message_counters[session_id]['sent'] += 1
-                                logging.info(f"🔢 COUNTER UPDATED: {message_counters[session_id]['sent']}/{message_counters[session_id]['total']}")
+                                current_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                                message_counters[session_id]['progress'] = (current_processed / message_counters[session_id]['total']) * 100
+                                logging.info(f"🔢 HEROKU PROGRESS UPDATE: {current_processed}/{message_counters[session_id]['total']} = {message_counters[session_id]['progress']:.1f}%")
                             
                             # Save successful send to database with Flask context
                             try:
@@ -1588,17 +1598,21 @@ def ultra_speed_heroku_optimized():
                     logging.error(f"❌ MESSAGE SEND FAILED: {phone} - Success: {success} - Response: {response}")
                     with counter_lock:
                         message_counters[session_id]['failed'] += 1
+                        current_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                        message_counters[session_id]['progress'] = (current_processed / message_counters[session_id]['total']) * 100
                         # HEROKU DEBUG: Log failures occasionally
                         if message_counters[session_id]['failed'] % 5 == 0:
-                            logging.info(f"🔍 FAILURE UPDATE: {message_counters[session_id]['failed']} failures - Session: {session_id}")
+                            logging.info(f"🔍 HEROKU FAILURE UPDATE: {current_processed}/{message_counters[session_id]['total']} = {message_counters[session_id]['progress']:.1f}%")
                     return False
                 
                 except Exception as e:
                     # Enhanced failure handling for Heroku debugging
                     with counter_lock:
                         message_counters[session_id]['failed'] += 1
+                        current_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                        message_counters[session_id]['progress'] = (current_processed / message_counters[session_id]['total']) * 100
                         # HEROKU DEBUG: Log exceptions
-                        logging.warning(f"🔍 EXCEPTION in send_single: {str(e)[:100]} - Session: {session_id}")
+                        logging.warning(f"🔍 HEROKU EXCEPTION: {str(e)[:100]} - Progress: {message_counters[session_id]['progress']:.1f}%")
                     return False
             
             # Rate-limited processing to prevent API limits
