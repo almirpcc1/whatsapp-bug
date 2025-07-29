@@ -15,18 +15,15 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h1 class="app-title">
-                            <i class="fab fa-whatsapp icon"></i>
                             WhatsApp Business API
                         </h1>
                         <p class="app-subtitle">Sistema profissional de envio em massa com distribuição inteligente</p>
                     </div>
                     <div class="header-actions">
                         <a href="/admin/sent-numbers" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-database"></i>
                             Histórico
                         </a>
                         <button type="button" class="btn btn-outline-light btn-sm" id="testWhatsAppBtn">
-                            <i class="fas fa-plug"></i>
                             Testar API
                         </button>
                     </div>
@@ -41,7 +38,6 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">
-                            <i class="fas fa-link icon"></i>
                             Conexão WhatsApp Business
                         </h5>
                         <div class="connection-indicator disconnected" id="connectionStatus">
@@ -59,7 +55,6 @@
                                            id="accessToken" 
                                            placeholder="EAAxxxxxxxxxxxxxxxxxx">
                                     <div class="form-text">
-                                        <i class="fas fa-info-circle"></i>
                                         Token de acesso do WhatsApp Business API
                                     </div>
                                 </div>
@@ -72,7 +67,6 @@
                                            id="businessManagerId" 
                                            placeholder="123456789">
                                     <div class="form-text">
-                                        <i class="fas fa-info-circle"></i>
                                         ID da Business Manager (opcional)
                                     </div>
                                 </div>
@@ -81,7 +75,6 @@
                                 <div class="form-group">
                                     <label class="form-label" style="opacity: 0;">Conectar</label>
                                     <button type="button" class="btn btn-primary" id="connectBtn" style="width: 100%;">
-                                        <i class="fas fa-plug"></i>
                                         Conectar
                                     </button>
                                 </div>
@@ -93,14 +86,12 @@
                             <div class="alert alert-success">
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center gap-3">
-                                        <i class="fas fa-check-circle"></i>
                                         <div>
                                             <div class="font-semibold">Conectado com sucesso</div>
                                             <div class="text-sm">Sistema pronto para envio em massa</div>
                                         </div>
                                     </div>
                                     <button type="button" class="btn btn-outline btn-sm" onclick="disconnect()">
-                                        <i class="fas fa-times"></i>
                                         Desconectar
                                     </button>
                                 </div>
@@ -135,7 +126,6 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">
-                            <i class="fas fa-cog icon"></i>
                             Configuração da Campanha
                         </h5>
                     </div>
@@ -147,7 +137,6 @@
                                 <option value="">Conecte-se primeiro para carregar números</option>
                             </select>
                             <div class="form-text">
-                                <i class="fas fa-info-circle"></i>
                                 Selecione o número do WhatsApp para envio das mensagens
                             </div>
                         </div>
@@ -159,7 +148,6 @@
                                 <option value="">Conecte-se primeiro para carregar templates</option>
                             </select>
                             <div class="form-text">
-                                <i class="fas fa-info-circle"></i>
                                 Apenas templates aprovados pelo WhatsApp Business podem ser usados
                             </div>
                         </div>
@@ -175,7 +163,6 @@
                                 style="font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;"
                             ></textarea>
                             <div class="form-text">
-                                <i class="fas fa-info-circle"></i>
                                 Formato: <code>numero,nome,CPF</code> (um contato por linha)
                             </div>
                         </div>
@@ -183,7 +170,6 @@
                         <!-- Validation Button -->
                         <div class="flex gap-3">
                             <button type="button" class="btn btn-primary" id="validateLeadsBtn">
-                                <i class="fas fa-check-circle"></i>
                                 Validar Lista
                             </button>
                         </div>
@@ -196,7 +182,6 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">
-                            <i class="fas fa-chart-line icon"></i>
                             Status da Campanha
                         </h5>
                     </div>
@@ -225,7 +210,6 @@
                         <div id="validationResults" style="display: none;">
                             <div class="alert alert-info">
                                 <div class="flex items-start gap-3">
-                                    <i class="fas fa-info-circle"></i>
                                     <div>
                                         <div class="font-semibold">Lista validada</div>
                                         <div class="text-sm" id="validationSummary">-</div>
@@ -237,7 +221,6 @@
                         <!-- Send Button -->
                         <div class="form-group">
                             <button type="button" class="btn btn-success btn-lg" id="smartDistributionBtn" disabled style="width: 100%;">
-                                <i class="fas fa-rocket"></i>
                                 Iniciar Envio Ultra-Rápido
                             </button>
                         </div>
@@ -266,7 +249,6 @@
                             </div>
                             
                             <div class="flex items-center gap-2 text-sm">
-                                <i class="fas fa-info-circle"></i>
                                 <span id="statusMessage">Preparando envio...</span>
                             </div>
                         </div>
@@ -279,7 +261,6 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">
-                            <i class="fas fa-eye icon"></i>
                             Preview da Distribuição
                         </h5>
                     </div>

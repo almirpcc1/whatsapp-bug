@@ -120,7 +120,7 @@ h6 { font-size: 0.875rem; }
 /* Layout Components */
 .grid {
     display: grid;
-    gap: var(--space-8);
+    gap: var(--space-6);
 }
 
 .grid-cols-1 { grid-template-columns: 1fr; }
@@ -184,9 +184,6 @@ h6 { font-size: 0.875rem; }
     font-size: 2rem;
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--space-2);
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
 }
 
 .app-subtitle {
@@ -229,9 +226,6 @@ h6 { font-size: 0.875rem; }
     font-size: 1rem;
     font-weight: var(--font-weight-semibold);
     color: var(--gray-900);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
     margin: 0;
 }
 
