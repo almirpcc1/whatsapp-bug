@@ -1432,21 +1432,22 @@ def ultra_speed_heroku_optimized():
                     if success and isinstance(response, dict):
                         message_id = response.get('messageId')
                         if message_id:
-                            # Save successful send to database
+                            # Save successful send to database with Flask context
                             try:
                                 from models import SentNumber
-                                from app import db
+                                from app import app, db
                                 
-                                sent_number = SentNumber.add_sent_number(
-                                    phone_number=phone,
-                                    lead_name=lead.get('nome'),
-                                    lead_cpf=lead.get('cpf'),
-                                    message_id=message_id
-                                )
-                                db.session.add(sent_number)
-                                db.session.commit()
-                                
-                                logging.debug(f"Número salvo no banco: {phone} - {lead.get('nome')}")
+                                with app.app_context():
+                                    sent_number = SentNumber.add_sent_number(
+                                        phone_number=phone,
+                                        lead_name=lead.get('nome'),
+                                        lead_cpf=lead.get('cpf'),
+                                        message_id=message_id
+                                    )
+                                    db.session.add(sent_number)
+                                    db.session.commit()
+                                    
+                                    logging.debug(f"Número salvo no banco: {phone} - {lead.get('nome')}")
                             except Exception as db_error:
                                 logging.warning(f"Erro ao salvar no banco: {db_error}")
                                 # Continue mesmo se houver erro no banco
@@ -1505,7 +1506,7 @@ def ultra_speed_heroku_optimized():
             
             # Final memory cleanup and status update
             gc.collect()
-            logging.info(f"⚡ MAXIMUM VELOCITY COMPLETE: {total_sent} sent from {len(leads)} leads - {optimal_workers} workers used")
+            logging.info(f"⚡ MAXIMUM VELOCITY COMPLETE: {total_sent} sent from {len(leads)} leads - {max_workers} workers used")
             message_counters[session_id]['status'] = 'completed'
         
         # Start HEROKU optimized background processing
@@ -1521,7 +1522,7 @@ def ultra_speed_heroku_optimized():
             'leads': len(leads),
             'phones': len(phone_number_ids),
             'templates': len(template_names),
-            'mode': f'MAXIMUM VELOCITY MODE - {optimal_workers} workers, {heroku_config["api_calls_per_second"]} calls/sec',
+            'mode': f'MAXIMUM VELOCITY MODE - Dynamic scaling, {heroku_config["api_calls_per_second"]} calls/sec',
             'dyno': dyno_info['dyno'],
             'session_id': session_id,
             'heroku_optimized': HerokuConfig.is_heroku()

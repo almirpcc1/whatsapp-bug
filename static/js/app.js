@@ -529,18 +529,28 @@ class WhatsAppSender {
                 if (data.success) {
                     const { sent, total, failed, progress, status } = data;
                     
+                    // Update progress bar
                     document.getElementById('progressBar').style.width = `${progress}%`;
                     document.getElementById('progressPercent').textContent = `${progress}%`;
+                    
+                    // Update counters
                     document.getElementById('sentProgress').textContent = sent;
                     document.getElementById('totalProgress').textContent = total;
+                    document.getElementById('successProgress').textContent = sent; // Use sent as success count
                     document.getElementById('errorProgress').textContent = failed;
                     
+                    // Update status message
+                    document.getElementById('statusMessage').innerHTML = 
+                        `<i class="fas fa-rocket text-primary me-2"></i>ULTRA-SPEED: ${sent}/${total} enviadas (${failed} falharam) - ${progress}%`;
+                    
                     if (status === 'completed' || progress >= 100) {
+                        document.getElementById('statusMessage').innerHTML = 
+                            `<i class="fas fa-check-circle text-success me-2"></i>✅ ULTRA-SPEED COMPLETO! ${sent} mensagens enviadas de ${total} (${failed} falharam)`;
                         this.showAlert(`Envio concluído! ${sent} mensagens enviadas de ${total}`, 'success');
                         return;
                     }
                     
-                    setTimeout(checkProgress, 1000);
+                    setTimeout(checkProgress, 500); // Check every 500ms for faster updates
                 }
             } catch (error) {
                 console.error('Error checking progress:', error);
@@ -554,6 +564,19 @@ class WhatsAppSender {
         const progressPanel = document.getElementById('progressPanel');
         if (progressPanel) {
             progressPanel.classList.remove('d-none');
+            
+            // Reset counters
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressPercent').textContent = '0%';
+            document.getElementById('sentProgress').textContent = '0';
+            document.getElementById('totalProgress').textContent = '0';
+            document.getElementById('successProgress').textContent = '0';
+            document.getElementById('errorProgress').textContent = '0';
+            document.getElementById('statusMessage').innerHTML = 
+                '<i class="fas fa-clock text-warning me-2"></i>Iniciando envio ultra-velocidade...';
+                
+            // Scroll to progress panel
+            progressPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
     
