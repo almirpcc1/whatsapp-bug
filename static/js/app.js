@@ -560,29 +560,30 @@ class WhatsAppSender {
                     // Handle session not found or error
                     console.error('HEROKU Progress API Error:', data);
                     
-                    // NO FALLBACK - Show real error when session is lost
-                    
-                    if (data.error && data.error.includes('Session not found')) {
-                        document.getElementById('statusMessage').innerHTML = 
-                            `<i class="fas fa-exclamation-triangle text-warning me-2"></i>SESSÃO PERDIDA - Verifique logs do Heroku para resultado real`;
+                    // FORCE UPDATE UI WITH WHATEVER DATA WE HAVE
+                    if (data.show_logs_message || (data.error && data.error.includes('Session not found'))) {
+                        // Update progress bar to show session lost
+                        document.getElementById('progressBar').style.width = '100%';
+                        document.getElementById('progressPercent').textContent = '100%';
                         
-                        // Show what we know from the error response
-                        if (data.sent !== undefined || data.failed !== undefined) {
-                            const sent = data.sent || 0;
-                            const failed = data.failed || 0;
-                            const total = data.total || 0;
-                            
-                            document.getElementById('sentProgress').textContent = sent;
-                            document.getElementById('totalProgress').textContent = total;
-                            document.getElementById('successProgress').textContent = sent;
-                            document.getElementById('errorProgress').textContent = failed;
-                            
-                            if (total > 0) {
-                                const progress = ((sent + failed) / total) * 100;
-                                document.getElementById('progressBar').style.width = `${progress}%`;
-                                document.getElementById('progressPercent').textContent = `${progress}%`;
-                            }
-                        }
+                        // Update status message - CRITICAL FIX
+                        document.getElementById('statusMessage').innerHTML = 
+                            '<i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>SESSÃO PERDIDA - Verifique logs do Heroku para resultado real</strong>';
+                        
+                        // Show available data if any
+                        const sent = data.sent || 0;
+                        const failed = data.failed || 0;
+                        const total = data.total || 0;
+                        
+                        document.getElementById('sentProgress').textContent = sent;
+                        document.getElementById('totalProgress').textContent = total;
+                        document.getElementById('successProgress').textContent = sent;
+                        document.getElementById('errorProgress').textContent = failed;
+                        
+                        // Show alert to user
+                        this.showAlert('⚠️ Sessão perdida! Verifique os logs do Heroku para confirmar quantas mensagens foram realmente enviadas.', 'warning');
+                        
+                        return; // Stop checking progress
                     }
                 }
             } catch (error) {

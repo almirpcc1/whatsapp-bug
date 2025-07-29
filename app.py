@@ -1760,8 +1760,9 @@ def get_progress(session_id):
             'failed': 0,
             'total': 0,
             'progress': 0,
-            'status': 'not_found'
-        }), 404
+            'status': 'session_lost',
+            'show_logs_message': True
+        }), 200
     
     progress_percent = 0
     if counter['total'] > 0:
