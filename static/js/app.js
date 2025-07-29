@@ -100,7 +100,12 @@ class WhatsAppSender {
                 this.loadConnectionData();
                 this.showAlert('Conectado com sucesso! Carregando dados...', 'success');
             } else {
-                this.showAlert(result.message || 'Erro ao conectar', 'danger');
+                // Check for token expiration
+                if (response.status === 401 || result.message.includes('expired') || result.message.includes('access token')) {
+                    this.showAlert('⚠️ TOKEN EXPIRADO: Seu token WhatsApp expirou. Por favor, obtenha um novo token do Facebook Business Manager.', 'warning');
+                } else {
+                    this.showAlert(result.message || 'Erro ao conectar', 'danger');
+                }
             }
         } catch (error) {
             console.error('Erro de conexão:', error);
@@ -500,7 +505,13 @@ class WhatsAppSender {
                 const sessionId = result.session_id;
                 this.trackProgress(sessionId);
             } else {
-                this.showAlert(result.error || 'Erro ao iniciar envio', 'danger');
+                // Check for specific error types
+                if (response.status === 401 || result.error_type === 'expired_token') {
+                    this.showAlert('⚠️ TOKEN EXPIRADO: Seu token WhatsApp expirou. Por favor, obtenha um novo token e reconecte.', 'warning');
+                    this.disconnect(); // Force disconnect to show connection form
+                } else {
+                    this.showAlert(result.error || 'Erro ao iniciar envio', 'danger');
+                }
             }
             
         } catch (error) {

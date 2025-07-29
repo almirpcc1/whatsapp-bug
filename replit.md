@@ -554,3 +554,6 @@ Changelog:
 - July 29, 2025. SEÇÃO CAMPANHAS REMOVIDA: Removida completamente seção de campanhas do HTML e JavaScript por solicitação do usuário
 - July 29, 2025. INTERFACE LIMPA: Sistema agora foca apenas no envio de mensagens ultra-rápido sem rastreamento de campanhas
 - July 29, 2025. CÓDIGO OTIMIZADO: Removidas todas rotas e funções relacionadas a gerenciamento de campanhas
+- July 29, 2025. PROBLEMA TOKEN EXPIRADO IDENTIFICADO: Sistema detectando erro 401 "Session has expired" nos logs
+- July 29, 2025. TRATAMENTO MELHORADO: Frontend agora detecta token expirado e força desconexão automática
+- July 29, 2025. MENSAGENS CLARAS: Interface exibe alerta específico sobre token expirado e instrui renovação
