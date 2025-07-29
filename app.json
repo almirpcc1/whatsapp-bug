@@ -1,0 +1,47 @@
+{
+  "name": "WhatsApp Business API System",
+  "description": "Advanced WhatsApp Business Cloud API management system with ultra-fast bulk messaging",
+  "keywords": ["python", "flask", "whatsapp", "api", "bulk-messaging"],
+  "website": "https://github.com/your-username/whatsapp-bulk-system",
+  "repository": "https://github.com/your-username/whatsapp-bulk-system",
+  "logo": "https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/whatsapp.svg",
+  "success_url": "/",
+  "stack": "heroku-22",
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "performance-l"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:standard-0"
+    }
+  ],
+  "env": {
+    "FLASK_ENV": {
+      "description": "Flask environment",
+      "value": "production"
+    },
+    "SESSION_SECRET": {
+      "description": "Secret key for Flask sessions",
+      "generator": "secret"
+    },
+    "WHATSAPP_ACCESS_TOKEN": {
+      "description": "WhatsApp Business API access token from Facebook Business Manager",
+      "required": true
+    },
+    "WHATSAPP_BUSINESS_ACCOUNT_ID": {
+      "description": "Business Manager ID (optional - will be auto-discovered if not provided)",
+      "required": false
+    }
+  },
+  "scripts": {
+    "postdeploy": "python -c \"from app import app, db; app.app_context().push(); db.create_all()\""
+  }
+}
