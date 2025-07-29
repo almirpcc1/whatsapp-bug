@@ -3,358 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Disparo WhatsApp - Business API</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>WhatsApp Business API - Sistema Profissional</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body>
-    <div class="container py-2">
+    <div class="container">
         <!-- Header -->
-        <div class="card header-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <header class="app-header">
+            <div class="app-header-content">
+                <div class="flex justify-between items-center">
                     <div>
-                        <h1>
-                            <i class="fab fa-whatsapp me-2"></i>
+                        <h1 class="app-title">
+                            <i class="fab fa-whatsapp icon"></i>
                             WhatsApp Business API
                         </h1>
-                        <p class="lead">Sistema de envio em massa profissional</p>
+                        <p class="app-subtitle">Sistema profissional de envio em massa com distribuição inteligente</p>
                     </div>
-                    <div class="header-actions d-flex gap-2">
+                    <div class="header-actions">
                         <a href="/admin/sent-numbers" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-database me-1"></i>
-                            Números Enviados
+                            <i class="fas fa-database"></i>
+                            Histórico
                         </a>
                         <button type="button" class="btn btn-outline-light btn-sm" id="testWhatsAppBtn">
-                            <i class="fas fa-plug me-1"></i>
+                            <i class="fas fa-plug"></i>
                             Testar API
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Connection Section -->
-        <div class="card" id="connectionCard">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title">
-                    <i class="fas fa-link me-1 whatsapp-accent"></i>
-                    Conectar WhatsApp Business API
-                </h6>
-                <span class="connection-status disconnected" id="connectionStatus">
-                    <i class="fas fa-circle"></i>
-                    Desconectado
-                </span>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-5">
-                        <label for="accessToken" class="form-label">Token de Acesso WhatsApp</label>
-                        <input type="password" 
-                               class="form-control" 
-                               id="accessToken" 
-                               placeholder="EAAxxxxxxxxxxxxxxxxxx"
-                               value="">
-                        <small class="form-text text-muted">Token da sua conta WhatsApp Business API</small>
-                    </div>
-                    <div class="col-md-5">
-                        <label for="businessManagerId" class="form-label">Business Manager ID (Opcional)</label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="businessManagerId" 
-                               placeholder="123456789012345"
-                               value="">
-                        <small class="form-text text-muted">Será descoberto automaticamente se não fornecido</small>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" 
-                                class="btn btn-primary w-100" 
-                                id="connectButton"
-                                onclick="connectWhatsApp()">
-                            <i class="fas fa-rocket me-2"></i>
-                            Conectar
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Connection Info -->
-                <div class="mt-2" id="connectionInfo" style="display: none;">
-                    <div class="alert alert-success" role="alert">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-check-circle me-1"></i>
-                                <strong>Conectado</strong>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="disconnect()">
-                                <i class="fas fa-times"></i>
-                                Desconectar
-                            </button>
-                        </div>
-                        <div class="row text-xs mt-2">
-                            <div class="col-md-6">
-                                <strong>BM ID:</strong> <span id="connectedBmId">-</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Números:</strong> <span id="connectedPhones">-</span>
-                            </div>
-                        </div>
-                        <div class="row text-xs">
-                            <div class="col-md-6">
-                                <strong>Templates:</strong> <span id="connectedTemplates">-</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Status:</strong> <span class="text-success">Online</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- API Status Alert -->
-        <div id="apiStatusAlert" class="alert alert-warning d-none" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <span id="apiStatusMessage"></span>
-        </div>
-
-        <!-- Main Content -->
-        <div class="row">
-            <!-- Left Column - Configuration -->
-            <div class="col-lg-6">
-                <!-- Leads Input -->
-                <div class="card mb-4">
+        <!-- Main Grid Layout -->
+        <div class="grid grid-cols-12">
+            <!-- Connection Panel -->
+            <div class="col-span-12">
+                <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-address-book me-2 whatsapp-accent"></i>
-                            Lista de Leads
+                        <h5 class="card-title">
+                            <i class="fas fa-link icon"></i>
+                            Conexão WhatsApp Business
+                        </h5>
+                        <div class="connection-indicator disconnected" id="connectionStatus">
+                            <div class="status-dot"></div>
+                            Desconectado
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-3" id="connectionForm">
+                            <div class="col-span-2">
+                                <div class="form-group">
+                                    <label for="accessToken" class="form-label">Token de Acesso WhatsApp Business</label>
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="accessToken" 
+                                           placeholder="EAAxxxxxxxxxxxxxxxxxx">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Token será usado para descobrir automaticamente Business Manager e Phone Numbers
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-span-1 flex items-end">
+                                <div class="form-group" style="width: 100%;">
+                                    <button type="button" class="btn btn-primary" id="connectBtn" style="width: 100%;">
+                                        <i class="fas fa-plug"></i>
+                                        Conectar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Connection Success State -->
+                        <div id="connectionInfo" style="display: none;">
+                            <div class="alert alert-success">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-check-circle"></i>
+                                        <div>
+                                            <div class="font-semibold">Conectado com sucesso</div>
+                                            <div class="text-sm">Sistema pronto para envio em massa</div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-outline btn-sm" onclick="disconnect()">
+                                        <i class="fas fa-times"></i>
+                                        Desconectar
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Connection Stats -->
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="connectedPhones">-</div>
+                                    <div class="stat-label">Phone Numbers</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="connectedTemplates">-</div>
+                                    <div class="stat-label">Templates</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="connectedBmId">-</div>
+                                    <div class="stat-label">Business Manager</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number success">Online</div>
+                                    <div class="stat-label">Status</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Panel -->
+            <div class="col-span-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-cog icon"></i>
+                            Configuração da Campanha
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label for="leadsInput" class="form-label">
-                                Insira os leads no formato: <code>numero,nome,CPF</code>
-                            </label>
+                        <!-- Phone Selection -->
+                        <div class="form-group">
+                            <label for="phoneSelect" class="form-label">Phone Number Ativo</label>
+                            <select class="form-control" id="phoneSelect" disabled>
+                                <option value="">Conecte-se primeiro para carregar números</option>
+                            </select>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                Selecione o número do WhatsApp para envio das mensagens
+                            </div>
+                        </div>
+
+                        <!-- Template Selection -->
+                        <div class="form-group">
+                            <label for="templateSelect" class="form-label">Template Aprovado</label>
+                            <select class="form-control" id="templateSelect" disabled>
+                                <option value="">Conecte-se primeiro para carregar templates</option>
+                            </select>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                Apenas templates aprovados pelo WhatsApp Business podem ser usados
+                            </div>
+                        </div>
+
+                        <!-- Leads Input -->
+                        <div class="form-group">
+                            <label for="leadsInput" class="form-label">Lista de Contatos</label>
                             <textarea 
                                 class="form-control font-monospace" 
                                 id="leadsInput" 
-                                rows="6"
+                                rows="8"
                                 placeholder="5511999887766,João Silva,12345678901&#10;5511998776655,Maria Santos,98765432100&#10;5511997665544,Pedro Costa,11122233344"
+                                style="font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;"
                             ></textarea>
                             <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Um lead por linha. Números serão formatados automaticamente.
+                                <i class="fas fa-info-circle"></i>
+                                Formato: <code>numero,nome,CPF</code> (um contato por linha)
                             </div>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-primary btn-sm" id="validateLeadsBtn">
-                                <i class="fas fa-check-circle me-1"></i>
-                                Validar Leads
+
+                        <!-- Validation Button -->
+                        <div class="flex gap-3">
+                            <button type="button" class="btn btn-primary" id="validateLeadsBtn">
+                                <i class="fas fa-check-circle"></i>
+                                Validar Lista
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Leads Validation Results -->
-                <div id="leadsValidation" class="card mb-4 d-none">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">
-                            <i class="fas fa-clipboard-check me-2 whatsapp-accent"></i>
-                            Resultado da Validação
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <div class="stat-card">
-                                    <div class="stat-number text-success" id="validCount">0</div>
-                                    <div class="stat-label">Válidos</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-card">
-                                    <div class="stat-number text-danger" id="errorCount">0</div>
-                                    <div class="stat-label">Erros</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-card">
-                                    <div class="stat-number" id="totalCount">0</div>
-                                    <div class="stat-label">Total</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Smart Distribution Information -->
-                        <div id="distributionInfo" class="mt-3 d-none">
-                            <div class="alert alert-success">
-                                <i class="fas fa-brain me-2"></i>
-                                <strong>Distribuição Inteligente:</strong> 
-                                <span id="phoneNumbersCount">0</span> números disponíveis, <span id="templatesCount">0</span> templates selecionados
-                                <br>
-                                <small class="text-muted">
-                                    Sistema distribuirá <span id="validLeadsCount">0</span> leads automaticamente (1000 por número)
-                                </small>
-                            </div>
-                        </div>
-                        
-                        <div id="validationErrors" class="mt-3 d-none">
-                            <h6 class="text-danger">Erros encontrados:</h6>
-                            <ul id="errorsList" class="list-unstyled small"></ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Phone Numbers and Templates -->
-                <div class="card mb-4" id="configurationCard">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-cog me-2 whatsapp-accent"></i>
-                            Configuração de Envio
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <!-- Phone Numbers Selection -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-phone me-1"></i>
-                                Selecionar Números (Múltiplos)
-                            </label>
-                            <div class="border rounded p-3" id="phoneNumbersContainer">
-                                <div class="text-muted text-center py-2">
-                                    <i class="fas fa-plug me-1"></i>
-                                    Conecte-se primeiro para ver os números disponíveis
-                                </div>
-                            </div>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <strong>Load Balancing:</strong> Escolha vários números para distribuir o envio entre eles automaticamente.
-                            </div>
-                        </div>
-                        
-                        <!-- Templates Selection -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-check-double me-1"></i>
-                                Selecionar Templates (Múltiplos)
-                            </label>
-                            <div class="border rounded p-3" id="templatesContainer">
-                                <div class="text-muted text-center py-2">
-                                    <i class="fas fa-plug me-1"></i>
-                                    Conecte-se primeiro para ver os templates disponíveis
-                                </div>
-                            </div>
-                            <div class="d-flex gap-2 mt-2">
-                                <button type="button" class="btn btn-outline-success btn-sm" id="selectAllTemplatesBtn" disabled>
-                                    <i class="fas fa-check-square me-1"></i>
-                                    Selecionar Todos
-                                </button>
-                                <button type="button" class="btn btn-outline-warning btn-sm" id="clearTemplatesBtn" disabled>
-                                    <i class="fas fa-times me-1"></i>
-                                    Limpar Seleção
-                                </button>
-                            </div>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <strong>Distribuição inteligente:</strong> Templates são distribuídos automaticamente entre os leads para evitar sobrecarga.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
             </div>
 
-            <!-- Right Column - Preview and Send -->
-            <div class="col-lg-6">
-
-
-                <!-- Send Controls -->
-                <div class="card mb-4">
+            <!-- Status Panel -->
+            <div class="col-span-4">
+                <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-rocket me-2 whatsapp-accent"></i>
-                            Enviar Mensagens
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line icon"></i>
+                            Status da Campanha
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-success" id="smartDistributionBtn" disabled>
-                                <i class="fas fa-rocket me-1"></i>
-                                ENVIO ULTRA-RÁPIDO
+                        <!-- Campaign Stats -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalLeadsCount">0</div>
+                                <div class="stat-label">Total</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number success" id="validLeadsCount">0</div>
+                                <div class="stat-label">Válidos</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number error" id="invalidLeadsCount">0</div>
+                                <div class="stat-label">Inválidos</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number info" id="duplicateLeadsCount">0</div>
+                                <div class="stat-label">Duplicatas</div>
+                            </div>
+                        </div>
+
+                        <!-- Validation Results -->
+                        <div id="validationResults" style="display: none;">
+                            <div class="alert alert-info">
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-info-circle"></i>
+                                    <div>
+                                        <div class="font-semibold">Lista validada</div>
+                                        <div class="text-sm" id="validationSummary">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Send Button -->
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-lg" id="smartDistributionBtn" disabled style="width: 100%;">
+                                <i class="fas fa-rocket"></i>
+                                Iniciar Envio Ultra-Rápido
                             </button>
-                            <div id="distributionPreview" class="mt-2 d-none">
-                                <div class="alert alert-info text-xs">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    <strong>Preview:</strong>
-                                    <div id="distributionDetails" class="mt-1"></div>
-                                </div>
-                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Progress Panel -->
-                <div id="progressPanel" class="card d-none">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-chart-line me-2 whatsapp-accent"></i>
-                            Progresso do Envio
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span>Progresso</span>
-                                <span id="progressPercent">0%</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="row text-center">
-                            <div class="col-3">
-                                <div class="stat-card">
-                                    <div class="stat-number" id="totalProgress">0</div>
-                                    <div class="stat-label">Total</div>
+                        <!-- Progress Section -->
+                        <div id="progressSection" style="display: none;">
+                            <div class="form-group">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm font-medium">Progresso do Envio</span>
+                                    <span class="text-sm" id="progressText">0%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
                                 </div>
                             </div>
-                            <div class="col-3">
+                            
+                            <div class="stats-grid">
                                 <div class="stat-card">
-                                    <div class="stat-number text-success" id="sentProgress">0</div>
+                                    <div class="stat-number success" id="sentCount">0</div>
                                     <div class="stat-label">Enviadas</div>
                                 </div>
-                            </div>
-                            <div class="col-3">
                                 <div class="stat-card">
-                                    <div class="stat-number text-success" id="successProgress">0</div>
-                                    <div class="stat-label">Sucesso</div>
+                                    <div class="stat-number error" id="failedCount">0</div>
+                                    <div class="stat-label">Falharam</div>
                                 </div>
                             </div>
-                            <div class="col-3">
-                                <div class="stat-card">
-                                    <div class="stat-number text-danger" id="errorProgress">0</div>
-                                    <div class="stat-label">Erros</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-2">
-                            <div class="d-flex align-items-center text-sm">
-                                <i class="fas fa-info-circle text-info me-1"></i>
+                            
+                            <div class="flex items-center gap-2 text-sm">
+                                <i class="fas fa-info-circle"></i>
                                 <span id="statusMessage">Preparando envio...</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Distribution Preview -->
+            <div class="col-span-12" id="distributionPreview" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-eye icon"></i>
+                            Preview da Distribuição
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="distributionDetails"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
+    <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
