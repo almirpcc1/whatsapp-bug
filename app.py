@@ -262,13 +262,24 @@ def connect_whatsapp():
         else:
             logging.warning(f"Erro ao buscar templates: {templates_response.status_code}")
         
-        # 4. Salvar dados na sessão
+        # 4. Salvar dados na sessão E atualizar ambiente automaticamente
         session['whatsapp_connection'] = {
             'access_token': access_token,
             'business_manager_id': discovered_bm_id,
             'connected_at': datetime.utcnow().isoformat()
         }
         session['last_business_manager_id'] = discovered_bm_id
+        
+        # CRÍTICO: Atualizar variáveis de ambiente para usar o token da interface
+        os.environ['WHATSAPP_ACCESS_TOKEN'] = access_token
+        logging.info(f"✅ TOKEN ATUALIZADO AUTOMATICAMENTE: {access_token[:50]}...")
+        
+        # Forçar refresh das credenciais no serviço WhatsApp
+        try:
+            whatsapp_service._refresh_credentials()
+            logging.info("✅ Credenciais WhatsApp Service atualizadas")
+        except Exception as e:
+            logging.warning(f"Aviso ao atualizar credenciais: {e}")
         
         # 5. Retornar dados da conexão
         connection_data = {
@@ -278,11 +289,12 @@ def connect_whatsapp():
             'connected_at': datetime.utcnow().isoformat()
         }
         
-        logging.info(f"Conexão estabelecida com sucesso - BM: {discovered_bm_id}, Phones: {len(phone_numbers)}, Templates: {len(templates)}")
+        logging.info(f"🚀 CONEXÃO AUTOMÁTICA COMPLETA - BM: {discovered_bm_id}, Phones: {len(phone_numbers)}, Templates: {len(templates)}")
+        logging.info(f"✅ Sistema configurado para usar token da interface automaticamente")
         
         return jsonify({
-            'success': True,
-            'message': 'Conectado com sucesso!',
+            'success': True, 
+            'message': f'Conectado automaticamente! BM: {discovered_bm_id}, {len(phone_numbers)} phones, {len(templates)} templates',
             'data': connection_data
         })
         

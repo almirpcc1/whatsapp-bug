@@ -557,3 +557,6 @@ Changelog:
 - July 29, 2025. PROBLEMA TOKEN EXPIRADO IDENTIFICADO: Sistema detectando erro 401 "Session has expired" nos logs
 - July 29, 2025. TRATAMENTO MELHORADO: Frontend agora detecta token expirado e força desconexão automática
 - July 29, 2025. MENSAGENS CLARAS: Interface exibe alerta específico sobre token expirado e instrui renovação
+- July 29, 2025. CONEXÃO AUTOMÁTICA IMPLEMENTADA: Token da interface agora atualiza automaticamente as variáveis de ambiente
+- July 29, 2025. SISTEMA INTEGRADO: Ao conectar via frontend, todas operações (envio, templates, etc) usam o token fornecido
+- July 29, 2025. REFRESH AUTOMÁTICO: WhatsApp Service atualiza credenciais automaticamente quando conecta
