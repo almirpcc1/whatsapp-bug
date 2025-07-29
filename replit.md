@@ -540,3 +540,8 @@ Changelog:
 - July 28, 2025. DATABASE OTIMIZADO: PostgreSQL configurado com pool de 20 conexões e overflow de 30
 - July 28, 2025. INTERFACE BOTÕES SEPARADOS: Campo BM ID com botões independentes para Templates e Números
 - July 28, 2025. ULTRA-SPEED HEROKU OPTIMIZED: Endpoint configurado para máximo desempenho em Performance Dynos
+- July 29, 2025. DYNAMIC FRONTEND CONNECTION IMPLEMENTED: Complete shift from backend secrets to frontend token input
+- July 29, 2025. UNIFIED CONNECTION INTERFACE: Single connection point at top automatically loads phone numbers and templates
+- July 29, 2025. REMOVED REDUNDANT BM FIELDS: Eliminated duplicate BM ID fields from configuration sections
+- July 29, 2025. BACKEND ENDPOINT `/api/connect-whatsapp`: Handles dynamic connections with auto-discovery features
+- July 29, 2025. LOCALSTORAGE PERSISTENCE: Connection data persists between browser sessions for improved UX

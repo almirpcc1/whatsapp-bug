@@ -201,53 +201,34 @@
                     </div>
                 </div>
 
-                <!-- Template Configuration -->
-                <div class="card mb-4">
+                <!-- Phone Numbers and Templates -->
+                <div class="card mb-4" id="configurationCard">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="fas fa-file-alt me-2"></i>
-                            Configuração do Template
+                            <i class="fas fa-cog me-2"></i>
+                            Configuração de Envio
                         </h5>
                     </div>
                     <div class="card-body">
+                        <!-- Phone Numbers Selection -->
                         <div class="mb-3">
-                            <label for="phoneNumberId" class="form-label">
-                                Phone Number ID
+                            <label class="form-label">
+                                <i class="fas fa-phone me-1"></i>
+                                Selecionar Números (Múltiplos)
                             </label>
-                            <select class="form-select" id="phoneNumberId" required>
-                                <option value="">Carregando números disponíveis...</option>
-                            </select>
+                            <div class="border rounded p-3" id="phoneNumbersContainer">
+                                <div class="text-muted text-center py-2">
+                                    <i class="fas fa-plug me-1"></i>
+                                    Conecte-se primeiro para ver os números disponíveis
+                                </div>
+                            </div>
                             <div class="form-text">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Selecione qual phone usar para esta aba. Permite usar abas diferentes com phones diferentes.
+                                <strong>Load Balancing:</strong> Escolha vários números para distribuir o envio entre eles automaticamente.
                             </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="businessAccountId" class="form-label">
-                                <i class="fas fa-building me-1"></i>
-                                ID da Business Manager
-                            </label>
-                            <div class="input-group">
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    id="businessAccountId" 
-                                    value=""
-                                    placeholder="Ex: 639849885789886"
-                                />
-                                <button type="button" class="btn btn-primary" id="loadTemplatesBtn">
-                                    <i class="fas fa-file-alt me-1"></i>Templates
-                                </button>
-                                <button type="button" class="btn btn-success" id="loadPhonesBtn">
-                                    <i class="fas fa-phone me-1"></i>Números
-                                </button>
-                            </div>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Cole o ID da Business Manager e clique nos botões para carregar templates e números separadamente.
-                            </div>
-                        </div>
+                        <!-- Templates Selection -->
                         <div class="mb-3">
                             <label class="form-label">
                                 <i class="fas fa-check-double me-1"></i>
@@ -255,15 +236,11 @@
                             </label>
                             <div class="border rounded p-3" id="templatesContainer">
                                 <div class="text-muted text-center py-2">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Clique em "Buscar Templates" para carregar os templates disponíveis
+                                    <i class="fas fa-plug me-1"></i>
+                                    Conecte-se primeiro para ver os templates disponíveis
                                 </div>
                             </div>
                             <div class="d-flex gap-2 mt-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="refreshTemplatesBtn">
-                                    <i class="fas fa-sync-alt me-1"></i>
-                                    Atualizar
-                                </button>
                                 <button type="button" class="btn btn-outline-success btn-sm" id="selectAllTemplatesBtn" disabled>
                                     <i class="fas fa-check-square me-1"></i>
                                     Selecionar Todos
@@ -275,13 +252,9 @@
                             </div>
                             <div class="form-text">
                                 <i class="fas fa-info-circle me-1"></i>
-                                <strong>Seleção múltipla:</strong> Escolha vários templates para distribuir o envio entre eles.
-                                <br>
-                                <small>Templates serão distribuídos igualmente entre os leads para evitar sobrecarga.</small>
+                                <strong>Distribuição inteligente:</strong> Templates são distribuídos automaticamente entre os leads para evitar sobrecarga.
                             </div>
                         </div>
-
-
                     </div>
                 </div>
 

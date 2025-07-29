@@ -1368,28 +1368,156 @@ Confirmar envio ULTRA-RÁPIDO?`;
             connectionInfo.style.display = 'block';
             
             // Ocultar campos de entrada
-            accessToken.style.display = 'none';
-            businessManagerId.style.display = 'none';
-            connectButton.style.display = 'none';
+            accessToken.parentElement.style.display = 'none';
+            businessManagerId.parentElement.style.display = 'none';
+            connectButton.parentElement.style.display = 'none';
             
             // Preencher informações de conexão
             document.getElementById('connectedBmId').textContent = this.connectionData.business_manager_id;
             document.getElementById('connectedPhones').textContent = this.connectionData.phone_numbers.length;
             document.getElementById('connectedTemplates').textContent = this.connectionData.templates.length;
+            
+            // Popular números e templates nas seções de configuração
+            this.populatePhoneNumbers(this.connectionData.phone_numbers);
+            this.populateTemplates(this.connectionData.templates);
         } else {
             connectionStatus.className = 'badge bg-secondary';
             connectionStatus.textContent = 'Desconectado';
             connectionInfo.style.display = 'none';
             
             // Mostrar campos de entrada
-            accessToken.style.display = 'block';
-            businessManagerId.style.display = 'block';
-            connectButton.style.display = 'block';
+            accessToken.parentElement.style.display = 'block';
+            businessManagerId.parentElement.style.display = 'block';
+            connectButton.parentElement.style.display = 'block';
             
             // Limpar campos
             accessToken.value = '';
             businessManagerId.value = '';
+            
+            // Limpar números e templates
+            this.clearPhoneNumbers();
+            this.clearTemplates();
         }
+    }
+    
+    populatePhoneNumbers(phoneNumbers) {
+        const phoneNumbersContainer = document.getElementById('phoneNumbersContainer');
+        
+        if (!phoneNumbers || phoneNumbers.length === 0) {
+            phoneNumbersContainer.innerHTML = `
+                <div class="text-muted text-center py-2">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Nenhum número encontrado na conta
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        phoneNumbers.forEach(phone => {
+            const qualityBadgeClass = phone.quality_rating === 'GREEN' ? 'bg-success' : 
+                                    phone.quality_rating === 'YELLOW' ? 'bg-warning' : 'bg-secondary';
+            
+            html += `
+                <div class="form-check d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                        <input class="form-check-input phone-checkbox" type="checkbox" value="${phone.id}" id="phone_${phone.id}">
+                        <label class="form-check-label ms-2" for="phone_${phone.id}">
+                            <strong>${phone.display_phone_number}</strong>
+                            ${phone.verified_name ? `<br><small class="text-muted">${phone.verified_name}</small>` : ''}
+                        </label>
+                    </div>
+                    <span class="badge ${qualityBadgeClass}">${phone.quality_rating}</span>
+                </div>
+            `;
+        });
+        
+        phoneNumbersContainer.innerHTML = html;
+        this.addPhoneNumberEventListeners();
+    }
+    
+    populateTemplates(templates) {
+        const templatesContainer = document.getElementById('templatesContainer');
+        
+        if (!templates || templates.length === 0) {
+            templatesContainer.innerHTML = `
+                <div class="text-muted text-center py-2">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Nenhum template aprovado encontrado
+                </div>
+            `;
+            document.getElementById('selectAllTemplatesBtn').disabled = true;
+            document.getElementById('clearTemplatesBtn').disabled = true;
+            return;
+        }
+        
+        let html = '';
+        templates.forEach(template => {
+            const categoryBadgeClass = template.category === 'MARKETING' ? 'bg-primary' : 
+                                     template.category === 'UTILITY' ? 'bg-success' : 'bg-info';
+            
+            html += `
+                <div class="form-check d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                        <input class="form-check-input template-checkbox" type="checkbox" value="${template.name}" id="template_${template.name}">
+                        <label class="form-check-label ms-2" for="template_${template.name}">
+                            <strong>${template.name}</strong>
+                            <small class="text-muted d-block">${template.language} | ${template.category}</small>
+                        </label>
+                    </div>
+                    <div>
+                        <span class="badge ${categoryBadgeClass} me-1">${template.category}</span>
+                        ${template.has_buttons ? '<i class="fas fa-link text-primary" title="Tem botões"></i>' : ''}
+                        ${template.has_parameters ? '<i class="fas fa-code text-info" title="Tem parâmetros"></i>' : ''}
+                    </div>
+                </div>
+            `;
+        });
+        
+        templatesContainer.innerHTML = html;
+        document.getElementById('selectAllTemplatesBtn').disabled = false;
+        document.getElementById('clearTemplatesBtn').disabled = false;
+        this.addTemplateEventListeners();
+    }
+    
+    clearPhoneNumbers() {
+        const phoneNumbersContainer = document.getElementById('phoneNumbersContainer');
+        phoneNumbersContainer.innerHTML = `
+            <div class="text-muted text-center py-2">
+                <i class="fas fa-plug me-1"></i>
+                Conecte-se primeiro para ver os números disponíveis
+            </div>
+        `;
+    }
+    
+    clearTemplates() {
+        const templatesContainer = document.getElementById('templatesContainer');
+        templatesContainer.innerHTML = `
+            <div class="text-muted text-center py-2">
+                <i class="fas fa-plug me-1"></i>
+                Conecte-se primeiro para ver os templates disponíveis
+            </div>
+        `;
+        document.getElementById('selectAllTemplatesBtn').disabled = true;
+        document.getElementById('clearTemplatesBtn').disabled = true;
+    }
+    
+    addPhoneNumberEventListeners() {
+        const phoneCheckboxes = document.querySelectorAll('.phone-checkbox');
+        phoneCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateDistributionInfo();
+            });
+        });
+    }
+    
+    addTemplateEventListeners() {
+        const templateCheckboxes = document.querySelectorAll('.template-checkbox');
+        templateCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateDistributionInfo();
+            });
+        });
     }
     
     loadConnectionData() {
