@@ -26,7 +26,7 @@ class WhatsAppSender {
         // Smart Distribution button
         const smartBtn = document.getElementById('smartDistributionBtn');
         if (smartBtn) {
-            smartBtn.addEventListener('click', () => this.sendSmartDistribution());
+            smartBtn.addEventListener('click', () => this.sendUltraSpeedMessages());
         }
         
         // Template selection buttons
