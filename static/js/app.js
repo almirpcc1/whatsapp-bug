@@ -57,6 +57,21 @@ class WhatsAppSender {
                 this.resetValidation();
             });
         }
+        
+        // Connection buttons
+        const connectBtn = document.getElementById('connectButton');
+        if (connectBtn) {
+            connectBtn.addEventListener('click', () => {
+                this.connectWhatsApp();
+            });
+        }
+        
+        const disconnectBtn = document.getElementById('disconnectButton');
+        if (disconnectBtn) {
+            disconnectBtn.addEventListener('click', () => {
+                this.disconnect();
+            });
+        }
     }
     
     async loadPhoneNumbers() {
@@ -1270,6 +1285,115 @@ Confirmar envio ULTRA-RÁPIDO?`;
         document.getElementById('clearTemplatesBtn').disabled = false;
         this.addTemplateEventListeners();
     }
+    
+    addPhoneNumberEventListeners() {
+        const checkboxes = document.querySelectorAll('.phone-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateDistributionInfo();
+            });
+        });
+    }
+    
+    addTemplateEventListeners() {
+        const checkboxes = document.querySelectorAll('.template-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateDistributionInfo();
+                this.updateTemplateButtons();
+            });
+        });
+    }
+    
+    clearPhoneNumbers() {
+        const phoneNumbersContainer = document.getElementById('phoneNumbersContainer');
+        phoneNumbersContainer.innerHTML = `
+            <div class="text-muted text-center py-2">
+                <i class="fas fa-plug me-1"></i>
+                Conecte-se primeiro para ver os números disponíveis
+            </div>
+        `;
+    }
+    
+    clearTemplates() {
+        const templatesContainer = document.getElementById('templatesContainer');
+        templatesContainer.innerHTML = `
+            <div class="text-muted text-center py-2">
+                <i class="fas fa-plug me-1"></i>
+                Conecte-se primeiro para ver os templates disponíveis
+            </div>
+        `;
+        document.getElementById('selectAllTemplatesBtn').disabled = true;
+        document.getElementById('clearTemplatesBtn').disabled = true;
+    }
+    
+    clearConnectionData() {
+        this.clearPhoneNumbers();
+        this.clearTemplates();
+    }
+    
+    loadConnectionData() {
+        if (this.connectionData) {
+            console.log(`${this.connectionData.phone_numbers.length} phone numbers carregados da conexão`);
+            this.updateDistributionInfo();
+        }
+    }
+    
+    updateDistributionInfo() {
+        const selectedPhones = this.getSelectedPhoneNumbers();
+        const selectedTemplates = this.getSelectedTemplates();
+        const validLeads = this.leads.length;
+        
+        const distributionInfo = document.getElementById('distributionInfo');
+        const phoneNumbersCount = document.getElementById('phoneNumbersCount');
+        const templatesCount = document.getElementById('templatesCount');
+        const validLeadsCount = document.getElementById('validLeadsCount');
+        
+        if (phoneNumbersCount) phoneNumbersCount.textContent = selectedPhones.length;
+        if (templatesCount) templatesCount.textContent = selectedTemplates.length;
+        if (validLeadsCount) validLeadsCount.textContent = validLeads;
+        
+        if (distributionInfo) {
+            if (selectedPhones.length > 0 && selectedTemplates.length > 0 && validLeads > 0) {
+                distributionInfo.classList.remove('d-none');
+            } else {
+                distributionInfo.classList.add('d-none');
+            }
+        }
+        
+        // Update send button
+        const sendButton = document.getElementById('smartDistributionBtn');
+        if (sendButton) {
+            sendButton.disabled = !(selectedPhones.length > 0 && selectedTemplates.length > 0 && validLeads > 0);
+        }
+    }
+    
+    getSelectedPhoneNumbers() {
+        const checkboxes = document.querySelectorAll('.phone-checkbox:checked');
+        const phones = [];
+        checkboxes.forEach(checkbox => {
+            phones.push({
+                id: checkbox.value,
+                displayName: checkbox.nextElementSibling.textContent.trim()
+            });
+        });
+        return phones;
+    }
+    
+    getAvailablePhoneNumbers() {
+        return this.getSelectedPhoneNumbers();
+    }
+    
+    resetValidation() {
+        const validationDiv = document.getElementById('leadsValidation');
+        if (validationDiv) {
+            validationDiv.classList.add('d-none');
+        }
+        
+        this.leads = [];
+        this.updateDistributionInfo();
+    }
+}
     
     clearPhoneNumbers() {
         const phoneNumbersContainer = document.getElementById('phoneNumbersContainer');
