@@ -1365,11 +1365,6 @@ def ultra_speed_heroku_optimized():
         
         logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
         
-        # CALCULATE ESTIMATED TIME FOR 60 SECOND TARGET
-        target_speed = heroku_config['api_calls_per_second'] / 10  # Effective speed considering API overhead
-        estimated_time_seconds = max(60, len(leads) / target_speed)  # Minimum 60 seconds target
-        logging.info(f"⚡ TARGET: {len(leads)} leads in {estimated_time_seconds:.0f} seconds - {target_speed:.0f} effective calls/sec")
-        
         if not leads_text or not template_names or not phone_number_ids:
             return jsonify({'error': 'Dados obrigatórios ausentes'}), 400
         
@@ -1387,6 +1382,11 @@ def ultra_speed_heroku_optimized():
         
         if not leads:
             return jsonify({'error': 'Nenhum lead válido encontrado'}), 400
+        
+        # CALCULATE ESTIMATED TIME FOR 60 SECOND TARGET
+        target_speed = heroku_config['api_calls_per_second'] / 10  # Effective speed considering API overhead
+        estimated_time_seconds = max(60, len(leads) / target_speed)  # Minimum 60 seconds target
+        logging.info(f"⚡ TARGET: {len(leads)} leads in {estimated_time_seconds:.0f} seconds - {target_speed:.0f} effective calls/sec")
         
         # Create session for tracking with CRITICAL debug
         session_id = str(int(time.time()))
