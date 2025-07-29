@@ -470,53 +470,30 @@ def discover_phones():
 
 @app.route('/api/validate-leads', methods=['POST'])
 def validate_leads():
-    """Validate leads format and return parsed data, filtering already sent numbers"""
+    """Validate leads format and return parsed data - NO DATABASE"""
     try:
-        from models import SentNumber
-        
         data = request.get_json()
         leads_text = data.get('leads', '').strip()
         
         if not leads_text:
             return jsonify({'error': 'Lista de leads não pode estar vazia'}), 400
         
-        # Parse leads from input
+        # Parse leads from input (sem filtro de banco)
         leads, errors = parse_leads(leads_text)
         
-        # Get set of already sent numbers for efficient lookup
-        sent_numbers = SentNumber.get_sent_numbers()
-        logging.info(f"Encontrados {len(sent_numbers)} números já enviados no banco de dados")
+        # Summary simples sem banco de dados
+        summary_message = f"✅ {len(leads)} leads válidos prontos para envio."
         
-        # Filter out leads that have already been sent
-        original_count = len(leads)
-        filtered_leads = []
-        already_sent = []
-        
-        for lead in leads:
-            phone_number = lead['numero']
-            if phone_number in sent_numbers:
-                already_sent.append(lead)
-                logging.debug(f"Número já enviado filtrado: {phone_number} - {lead['nome']}")
-            else:
-                filtered_leads.append(lead)
-        
-        # Create summary message
-        summary_message = ""
-        if len(already_sent) > 0:
-            summary_message = f"🔄 {len(already_sent)} leads removidos (já foram enviados anteriormente). "
-        
-        summary_message += f"✅ {len(filtered_leads)} leads válidos prontos para envio."
-        
-        logging.info(f"FILTRO ANTI-DUPLICAÇÃO: {original_count} leads originais → {len(filtered_leads)} leads após filtro (removidos {len(already_sent)} já enviados)")
+        logging.info(f"VALIDAÇÃO LEADS: {len(leads)} leads válidos, {len(errors)} erros encontrados")
         
         return jsonify({
-            'leads': filtered_leads,
+            'leads': leads,
             'errors': errors,
-            'total_valid': len(filtered_leads),
+            'total_valid': len(leads),
             'total_errors': len(errors),
-            'original_count': original_count,
-            'filtered_count': len(already_sent),
-            'already_sent': already_sent[:10],  # Primeiros 10 para referência
+            'original_count': len(leads) + len(errors),
+            'filtered_count': 0,
+            'already_sent': [],
             'summary': summary_message
         })
     
