@@ -747,13 +747,33 @@ Regularizar meu CPF: https://irpf.intimacao.org/{cpf}"""
             if response.status_code == 200:
                 data = response.json()
                 message_id = data.get('messages', [{}])[0].get('id', '')
-                logging.info(f"TEMPLATE APROVADO FUNCIONOU! Message ID: {message_id}")
+                
+                # CRITICAL DEBUGGING: Log complete API response
+                logging.info(f"🔍 COMPLETE API RESPONSE: {data}")
+                logging.info(f"✅ TEMPLATE APPROVED SENT - Message ID: {message_id}")
+                logging.info(f"📱 MESSAGE SENT TO: {formatted_phone} - TEMPLATE: {template_name}")
+                
+                # Check contact resolution for delivery validation
+                contacts = data.get('contacts', [])
+                if contacts:
+                    contact_info = contacts[0]
+                    wa_id = contact_info.get('wa_id', 'unknown')
+                    input_phone = contact_info.get('input', 'unknown')
+                    logging.info(f"📋 CONTACT INFO: Input={input_phone}, WhatsApp_ID={wa_id}")
+                    
+                    # WARNING: Check if WhatsApp ID was resolved properly
+                    if wa_id == 'unknown' or not wa_id:
+                        logging.warning(f"⚠️  WhatsApp ID NOT RESOLVED for {formatted_phone} - MESSAGE MAY NOT BE DELIVERED!")
+                else:
+                    logging.warning(f"⚠️  NO CONTACT INFO in response - MESSAGE MAY NOT BE DELIVERED!")
                 
                 return True, {
                     'messageId': message_id,
                     'whatsAppId': message_id,
                     'status': 'sent',
-                    'template_used': template_name
+                    'template_used': template_name,
+                    'contacts': contacts,
+                    'api_response': data
                 }
             else:
                 error_data = response.json() if response.content else {}

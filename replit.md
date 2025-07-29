@@ -583,5 +583,7 @@ Changelog:
 - July 29, 2025. CONFIGURAÇÃO SUPREMA: 100.000 workers, 333.334 API calls/segundo, 100K conexões HTTP simultâneas
 - July 29, 2025. PROCESSAMENTO ÚNICO BATCH: Todos os leads processados simultaneamente em batch único
 - July 29, 2025. TARGET 60 SEGUNDOS: 20.000 leads processados em máximo 60 segundos (333 calls/segundo efetivos)
-- July 29, 2025. DEBUGGING PROGRESSO HEROKU: Logs detalhados para resolver problema progresso travado em 0%
-- July 29, 2025. INTERFACE ATUALIZADA: Progresso mostra TARGET 60 SEGUNDOS e workers utilizados
+- July 29, 2025. PROBLEMA CRÍTICO ENTREGA IDENTIFICADO: Mensagens com status 200 não chegam aos destinatários
+- July 29, 2025. LOGGING DETALHADO IMPLEMENTADO: API response completa, contact info, WhatsApp ID resolution
+- July 29, 2025. VALIDAÇÃO ENTREGA ADICIONADA: Sistema detecta se WhatsApp ID foi resolvido corretamente
+- July 29, 2025. DEBUGGING AVANÇADO: Logs mostram input phone, WhatsApp ID, message ID para diagnóstico
