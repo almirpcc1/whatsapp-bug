@@ -587,3 +587,6 @@ Changelog:
 - July 29, 2025. LOGGING DETALHADO IMPLEMENTADO: API response completa, contact info, WhatsApp ID resolution
 - July 29, 2025. VALIDAÇÃO ENTREGA ADICIONADA: Sistema detecta se WhatsApp ID foi resolvido corretamente
 - July 29, 2025. DEBUGGING AVANÇADO: Logs mostram input phone, WhatsApp ID, message ID para diagnóstico
+- July 29, 2025. CAUSA RAIZ IDENTIFICADA: Token não tem permissões para Phone Number IDs selecionados (Error #100)
+- July 29, 2025. SISTEMA LOGGING CRÍTICO: Workers agora logam todas tentativas de envio incluindo falhas
+- July 29, 2025. DIAGNÓSTICO COMPLETO: Sistema detecta phone numbers inválidos e tokens sem permissão automaticamente

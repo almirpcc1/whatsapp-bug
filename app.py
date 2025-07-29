@@ -1441,9 +1441,13 @@ def ultra_speed_heroku_optimized():
                         phone, template_name, 'en', [lead.get('cpf', ''), lead.get('nome', '')], phone_id
                     )
                     
+                    # CRITICAL DEBUG: Log ALL attempts including failures
+                    logging.info(f"🔍 SEND ATTEMPT: {phone} - Success: {success} - Response: {response}")
+                    
                     if success and isinstance(response, dict):
                         message_id = response.get('messageId')
                         if message_id:
+                            logging.info(f"✅ REAL MESSAGE SENT: {phone} - Message ID: {message_id}")
                             # Save successful send to database with Flask context
                             try:
                                 from models import SentNumber
@@ -1473,7 +1477,8 @@ def ultra_speed_heroku_optimized():
                                     logging.info(f"🔍 PROGRESS UPDATE: {message_counters[session_id]['sent']}/{message_counters[session_id]['total']} - Session: {session_id}")
                             return True
                     
-                    # Any failure case
+                    # Any failure case - LOG THE EXACT REASON
+                    logging.error(f"❌ MESSAGE SEND FAILED: {phone} - Success: {success} - Response: {response}")
                     with counter_lock:
                         message_counters[session_id]['failed'] += 1
                         # HEROKU DEBUG: Log failures occasionally
