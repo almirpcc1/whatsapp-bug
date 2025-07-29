@@ -570,3 +570,7 @@ Changelog:
 - July 29, 2025. HEROKU DEPLOYMENT SOLUTION: Criados Procfile, runtime.txt, deploy script e guia completo para resolver "no process types"
 - July 29, 2025. MAXIMUM VELOCITY HEROKU: Procfile otimizado com 8 workers, 16 threads, timeouts estendidos para alta performance
 - July 29, 2025. HEROKU AUTO-DEPLOY: Script deploy_heroku.sh criado para deployment automático com Performance-L dyno
+- July 29, 2025. ESCALABILIDADE FLEXÍVEL: Sistema atualizado para suportar múltiplos dynos ao invés de configuração fixa Performance-L
+- July 29, 2025. CONFIGURAÇÃO DINÂMICA: Procfile usa variáveis de ambiente (WEB_CONCURRENCY, THREADS_PER_WORKER, TIMEOUT)
+- July 29, 2025. MÚLTIPLAS OPÇÕES DYNO: Suporte para Standard-2X, Performance-M, Performance-L com scaling horizontal
+- July 29, 2025. OPTIMAL_WORKERS FIX: Corrigido erro de variável não definida no processamento ultra-speed

@@ -1473,6 +1473,8 @@ def ultra_speed_heroku_optimized():
             
             # MAXIMUM VELOCITY - WhatsApp API Optimized processing
             batch_size = heroku_config['batch_size']  # Ultra-large batches (2000)
+            # Calculate optimal workers based on leads and configuration
+            optimal_workers = min(heroku_config['max_workers'], len(leads) * 5, 5000)
             max_workers = optimal_workers  # Dynamic scaling based on leads
             delay_between_batches = heroku_config['rate_limit_delay']  # Ultra-minimal delay (0.00001s)
             

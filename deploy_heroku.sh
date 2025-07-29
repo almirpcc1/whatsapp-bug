@@ -32,21 +32,26 @@ heroku create $APP_NAME --region us
 echo "🗄️ Adding PostgreSQL database..."
 heroku addons:create heroku-postgresql:standard-0 --app $APP_NAME
 
-# Set config vars for maximum performance
-echo "⚡ Setting performance configuration..."
+# Set config vars for scalable performance
+echo "⚡ Setting scalable performance configuration..."
 heroku config:set \
   FLASK_ENV=production \
-  MAX_WORKERS=10000 \
-  BATCH_SIZE=2000 \
-  THREAD_MULTIPLIER=500 \
-  CONNECTION_POOL_SIZE=3000 \
-  RATE_LIMIT_DELAY=0.00001 \
-  API_CALLS_PER_SECOND=2000 \
+  WEB_CONCURRENCY=4 \
+  THREADS_PER_WORKER=8 \
+  TIMEOUT=600 \
+  MAX_WORKERS=5000 \
+  BATCH_SIZE=1000 \
+  CONNECTION_POOL_SIZE=2000 \
   --app $APP_NAME
 
-# Scale to Performance-L dyno
-echo "🔥 Scaling to Performance-L dyno for maximum velocity..."
-heroku ps:scale web=1:performance-l --app $APP_NAME
+# Initial scaling (user can change this in Heroku dashboard)
+echo "🔥 Setting up initial dyno configuration..."
+echo "   You can scale to your preferred dyno type and quantity in Heroku dashboard"
+echo "   Recommended configurations:"
+echo "   • Standard-2X: heroku ps:scale web=2:standard-2x"
+echo "   • Performance-M: heroku ps:scale web=1:performance-m" 
+echo "   • Performance-L: heroku ps:scale web=1:performance-l"
+echo "   • Multiple dynos: heroku ps:scale web=5:standard-2x"
 
 # Deploy
 echo "🚀 Deploying to Heroku..."
@@ -62,9 +67,9 @@ echo ""
 echo "🎉 DEPLOYMENT SUCCESSFUL!"
 echo "=================================================="
 echo "App URL: https://$APP_NAME.herokuapp.com"
-echo "Performance: Performance-L Dyno (14GB RAM, 8 CPU cores)"
-echo "Velocity: Up to 2000 calls/second to WhatsApp API"
-echo "Workers: Up to 10,000 concurrent workers"
+echo "Initial Setup: Standard-2X dyno (configurable)"
+echo "Scalability: Configure multiple dynos as needed"
+echo "Workers: Up to 5,000 concurrent workers per dyno"
 echo ""
 echo "📋 Next steps:"
 echo "1. Set your WHATSAPP_ACCESS_TOKEN in Heroku dashboard"
@@ -72,6 +77,9 @@ echo "2. Test the system with a small list first"
 echo "3. Scale up for massive campaigns!"
 echo ""
 echo "🔧 Useful commands:"
-echo "heroku logs --tail --app $APP_NAME    # View logs"
-echo "heroku config --app $APP_NAME         # View config"
-echo "heroku ps --app $APP_NAME             # View dynos"
+echo "heroku logs --tail --app $APP_NAME                    # View logs"
+echo "heroku config --app $APP_NAME                         # View config"
+echo "heroku ps --app $APP_NAME                             # View dynos"
+echo "heroku ps:scale web=3:standard-2x --app $APP_NAME     # Scale to 3 Standard-2X dynos"
+echo "heroku ps:scale web=1:performance-l --app $APP_NAME   # Scale to 1 Performance-L dyno"
+echo "heroku ps:scale web=5:performance-m --app $APP_NAME   # Scale to 5 Performance-M dynos"

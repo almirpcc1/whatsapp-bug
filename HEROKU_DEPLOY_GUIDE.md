@@ -67,8 +67,10 @@ heroku config:set \
   RATE_LIMIT_DELAY=0.00001 \
   API_CALLS_PER_SECOND=2000
 
-# Escalar para Performance-L (OBRIGATÓRIO para máxima velocidade)
-heroku ps:scale web=1:performance-l
+# Escolha sua configuração de dynos (exemplos):
+# heroku ps:scale web=1:performance-l      # 1 dyno potente
+# heroku ps:scale web=3:standard-2x        # 3 dynos médios  
+# heroku ps:scale web=5:performance-m      # 5 dynos performance
 
 # Deploy
 git add .
@@ -79,14 +81,14 @@ git push heroku main
 heroku config:set WHATSAPP_ACCESS_TOKEN=your_token_here
 ```
 
-## ⚡ CONFIGURAÇÃO DE MÁXIMA VELOCIDADE
+## ⚡ CONFIGURAÇÃO ESCALÁVEL PARA MÁXIMA VELOCIDADE
 
 O sistema está otimizado para:
-- **10.000 workers simultâneos**
-- **2.000 mensagens por lote**
-- **3.000 conexões HTTP simultâneas**
-- **2.000 calls/segundo para WhatsApp API**
-- **Performance-L Dyno (14GB RAM, 8 CPU cores)**
+- **5.000 workers simultâneos por dyno**
+- **1.000 mensagens por lote (configurável)**
+- **2.000 conexões HTTP simultâneas por dyno**
+- **Escalabilidade horizontal com múltiplos dynos**
+- **Configuração flexível via variáveis de ambiente**
 
 ## 🔧 Verificação Pós-Deploy
 
@@ -101,11 +103,23 @@ heroku ps
 heroku open
 ```
 
-## 💡 DICA IMPORTANTE
+## 💡 ESCALABILIDADE FLEXÍVEL
 
-Para máxima velocidade, é ESSENCIAL usar Performance-L dyno:
+Você pode escolher diferentes estratégias de scaling:
+
+**Opção 1: Dyno Potente**
 ```bash
 heroku ps:scale web=1:performance-l
 ```
 
-Dyno básico não suporta a velocidade máxima configurada.
+**Opção 2: Múltiplos Dynos**
+```bash
+heroku ps:scale web=5:standard-2x
+```
+
+**Opção 3: Balanceamento**
+```bash
+heroku ps:scale web=3:performance-m
+```
+
+O sistema se adapta automaticamente ao tipo e quantidade de dynos configurados.
