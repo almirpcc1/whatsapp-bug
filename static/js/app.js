@@ -12,64 +12,51 @@ class WhatsAppSender {
     
     initializeEventListeners() {
         // Test Z-API button
-        document.getElementById('testWhatsAppBtn').addEventListener('click', () => {
-            this.testWhatsAppConnection();
-        });
+        const testBtn = document.getElementById('testWhatsAppBtn');
+        if (testBtn) {
+            testBtn.addEventListener('click', () => {
+                this.testWhatsAppConnection();
+            });
+        }
         
         // Validate leads button
-        document.getElementById('validateLeadsBtn').addEventListener('click', () => {
-            this.validateLeads();
-        });
+        const validateBtn = document.getElementById('validateLeadsBtn');
+        if (validateBtn) {
+            validateBtn.addEventListener('click', () => {
+                this.validateLeads();
+            });
+        }
         
         // Smart Distribution button
-        document.getElementById('smartDistributionBtn').addEventListener('click', () => {
-            this.sendSmartDistribution();
-        });
+        const smartBtn = document.getElementById('smartDistributionBtn');
+        if (smartBtn) {
+            smartBtn.addEventListener('click', () => {
+                this.sendSmartDistribution();
+            });
+        }
         
         // Template selection buttons
-        document.getElementById('selectAllTemplatesBtn').addEventListener('click', () => {
-            this.selectAllTemplates();
-        });
+        const selectAllBtn = document.getElementById('selectAllTemplatesBtn');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => {
+                this.selectAllTemplates();
+            });
+        }
         
-        document.getElementById('clearTemplatesBtn').addEventListener('click', () => {
-            this.clearTemplateSelection();
-        });
-        
-
-        
-
+        const clearBtn = document.getElementById('clearTemplatesBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearTemplateSelection();
+            });
+        }
         
         // Leads textarea change
-        document.getElementById('leadsInput').addEventListener('input', () => {
-            this.resetValidation();
-        });
-        
-        // Template refresh button
-        document.getElementById('refreshTemplatesBtn').addEventListener('click', () => {
-            this.loadAvailableTemplates();
-        });
-        
-        // Load templates button
-        document.getElementById('loadTemplatesBtn').addEventListener('click', () => {
-            this.loadAvailableTemplates();
-        });
-        
-        // Load phones button
-        document.getElementById('loadPhonesBtn').addEventListener('click', () => {
-            this.loadPhoneNumbers();
-        });
-        
-
-        
-
-        
-        // Business Manager ID change - salva automaticamente
-        document.getElementById('businessAccountId').addEventListener('input', (e) => {
-            const bmId = e.target.value.trim();
-            if (bmId && bmId.length > 5) { // Só salva se tem conteúdo válido
-                this.saveBusinessManagerId(bmId);
-            }
-        });
+        const leadsInput = document.getElementById('leadsInput');
+        if (leadsInput) {
+            leadsInput.addEventListener('input', () => {
+                this.resetValidation();
+            });
+        }
     }
     
     async loadPhoneNumbers() {
