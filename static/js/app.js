@@ -111,7 +111,7 @@ class WhatsAppBulkSender {
                 this.storeConnection(token, businessManagerId, data);
                 this.showAlert('success', 'Conectado com sucesso ao WhatsApp Business API');
             } else {
-                this.showAlert('error', data.error || 'Erro ao conectar');
+                this.showAlert('error', data.message || data.error || 'Erro ao conectar');
             }
         } catch (error) {
             this.showAlert('error', 'Erro de rede ao conectar');
@@ -131,14 +131,17 @@ class WhatsAppBulkSender {
             this.connectionForm.style.display = 'none';
             this.connectionInfo.style.display = 'block';
             
+            // Extract connection data from response
+            const connectionData = data.data || data;
+            
             // Update stats
-            this.connectedPhones.textContent = data.phone_count || 0;
-            this.connectedTemplates.textContent = data.template_count || 0;
-            this.connectedBmId.textContent = data.business_manager_id || '-';
+            this.connectedPhones.textContent = (connectionData.phone_numbers || []).length;
+            this.connectedTemplates.textContent = (connectionData.templates || []).length;
+            this.connectedBmId.textContent = connectionData.business_manager_id || '-';
             
             // Populate selects
-            this.populatePhoneSelect(data.phone_numbers || []);
-            this.populateTemplateSelect(data.templates || []);
+            this.populatePhoneSelect(connectionData.phone_numbers || []);
+            this.populateTemplateSelect(connectionData.templates || []);
             
             // Enable form elements
             this.phoneSelect.disabled = false;
@@ -167,7 +170,7 @@ class WhatsAppBulkSender {
         phones.forEach(phone => {
             const option = document.createElement('option');
             option.value = phone.id;
-            option.textContent = `${phone.number} (${phone.verified_name})`;
+            option.textContent = `${phone.display_phone_number} (${phone.verified_name || 'Sem nome'})`;
             this.phoneSelect.appendChild(option);
         });
     }
@@ -177,7 +180,7 @@ class WhatsAppBulkSender {
         templates.forEach(template => {
             const option = document.createElement('option');
             option.value = template.name;
-            option.textContent = `${template.name} (${template.language})`;
+            option.textContent = `${template.name} (${template.language} - ${template.category})`;
             this.templateSelect.appendChild(option);
         });
     }
