@@ -1466,8 +1466,19 @@ def ultra_speed_heroku_optimized():
                     phone_id = phone_number_ids[lead_index % len(phone_number_ids)] if phone_number_ids else None
                     template_name = template_names[lead_index % len(template_names)] if template_names else None
                     
+                    # Format phone FIRST before validation
+                    phone = str(lead.get('numero', ''))
+                    if not phone or len(phone) < 10:
+                        with counter_lock:
+                            message_counters[session_id]['failed'] += 1
+                        return False
+                    
+                    if not phone.startswith('+'):
+                        phone = '+55' + phone if len(phone) == 11 else '+' + phone
+                    
                     # Validate phone ID and template
                     if not phone_id or phone_id == 'None' or not template_name:
+                        logging.error(f"❌ VALIDATION FAILED: phone_id={phone_id}, template={template_name}, phone={phone}")
                         with counter_lock:
                             message_counters[session_id]['failed'] += 1
                         return False
@@ -1484,21 +1495,25 @@ def ultra_speed_heroku_optimized():
                     whatsapp._access_token = worker_token  # Direct assignment
                     whatsapp._refresh_credentials()
                     
-                    # HEROKU DEBUG: Multiple verification
+                    # HEROKU DEBUG: Multiple verification with token validation
                     logging.info(f"🔑 WORKER: {phone} using token {worker_token[:30]}...")
                     if whatsapp._access_token != worker_token:
                         logging.error(f"❌ FORCING TOKEN: {worker_token[:30]}...")
                         whatsapp._access_token = worker_token
                     
-                    # Format phone with validation
-                    phone = str(lead.get('numero', ''))
-                    if not phone or len(phone) < 10:
+                    # CRITICAL: Validate token format before sending
+                    if not worker_token or len(worker_token) < 50:
+                        logging.error(f"❌ INVALID TOKEN LENGTH: {len(worker_token) if worker_token else 0}")
                         with counter_lock:
                             message_counters[session_id]['failed'] += 1
                         return False
                     
-                    if not phone.startswith('+'):
-                        phone = '+55' + phone if len(phone) == 11 else '+' + phone
+                    # Phone already formatted above - just validate again
+                    if not phone:
+                        logging.error(f"❌ PHONE VALIDATION FAILED: {lead}")
+                        with counter_lock:
+                            message_counters[session_id]['failed'] += 1
+                        return False
                     
                     # Send with optimized error handling
                     success, response = whatsapp.send_template_message(

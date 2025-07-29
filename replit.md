@@ -602,3 +602,6 @@ Changelog:
 - July 29, 2025. HEROKU BUG CRÍTICO IDENTIFICADO: Mensagens não chegam no WhatsApp - token da interface não aplicado corretamente nos workers
 - July 29, 2025. DEBUGGING HEROKU IMPLEMENTADO: Logs mostram processamento 15/15 mas mensagens não chegam aos destinatários
 - July 29, 2025. CORREÇÃO WORKER TOKEN: Workers agora aplicam token múltiplas vezes e verificam se foi aplicado corretamente
+- July 29, 2025. ERRO 401 IDENTIFICADO: "The access token could not be decrypted" - token da interface expirado/inválido
+- July 29, 2025. DIAGNÓSTICO COMPLETO: Sistema aplica token corretamente mas Meta/Facebook rejeita com erro 190 (OAuthException)
+- July 29, 2025. SOLUÇÃO IMPLEMENTADA: Validação de token antes do envio e logs detalhados para debugging
