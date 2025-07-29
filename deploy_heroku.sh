@@ -3,8 +3,13 @@
 # WhatsApp Bulk Messaging System - Heroku Deploy Script
 # Otimizado para Performance-L Dynos com máxima velocidade
 
-echo "🚀 DEPLOYING WHATSAPP BULK SYSTEM TO HEROKU - MAXIMUM VELOCITY MODE"
+echo "🚀 DEPLOYING WHATSAPP BULK SYSTEM TO HEROKU - ULTRA EXTREME VELOCITY MODE"
 echo "=================================================="
+
+# Fix Heroku uv compatibility issues
+echo "🔧 Fixing Heroku uv compatibility..."
+rm -f runtime.txt
+echo "3.11" > .python-version
 
 # Check if heroku CLI is installed
 if ! command -v heroku &> /dev/null; then
@@ -32,16 +37,19 @@ heroku create $APP_NAME --region us
 echo "🗄️ Adding PostgreSQL database..."
 heroku addons:create heroku-postgresql:standard-0 --app $APP_NAME
 
-# Set config vars for scalable performance
-echo "⚡ Setting scalable performance configuration..."
+# Set config vars for ULTRA EXTREME VELOCITY
+echo "⚡ Setting ULTRA EXTREME VELOCITY configuration..."
 heroku config:set \
   FLASK_ENV=production \
-  WEB_CONCURRENCY=4 \
-  THREADS_PER_WORKER=8 \
-  TIMEOUT=600 \
-  MAX_WORKERS=5000 \
-  BATCH_SIZE=1000 \
-  CONNECTION_POOL_SIZE=2000 \
+  WEB_CONCURRENCY=8 \
+  THREADS_PER_WORKER=16 \
+  TIMEOUT=1200 \
+  MAX_WORKERS=25000 \
+  BATCH_SIZE=10000 \
+  CONNECTION_POOL_SIZE=15000 \
+  THREAD_MULTIPLIER=2000 \
+  API_CALLS_PER_SECOND=10000 \
+  RATE_LIMIT_DELAY=0.0000010 \
   --app $APP_NAME
 
 # Initial scaling (user can change this in Heroku dashboard)
