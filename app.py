@@ -1336,22 +1336,22 @@ def whatsapp_webhook():
 def ultra_speed_heroku_optimized():
     """HEROKU OPTIMIZED Ultra-speed endpoint with maximum Performance Dyno utilization"""
     try:
-        # ULTRA SUPREME VELOCITY Configuration - 60 SECONDS FOR 20K LEADS
-        heroku_config = {
-            'max_workers': 100000,      # ULTRA SUPREME workers - 100K simultaneous
-            'batch_size': 50000,        # SUPREME MEGA batches - process all at once
-            'thread_multiplier': 10000, # INFINITE parallelism - 2x increase  
-            'connection_pool_size': 100000, # UNLIMITED connection pool - 3x increase
-            'rate_limit_delay': 0.00000001,  # ATOMIC delay (0.00001ms) - 10x faster
-            'burst_mode': True,         # Enable burst mode
-            'api_calls_per_second': 333334,  # TARGET: 333K/second for 20K in 60s
-            'timeout': 300,             # 5 minutes max timeout
-            'memory_management': True,  # Advanced memory management
-            'instant_mode': True        # Enable instant processing mode
-        }
-        
         data = request.get_json()
         leads_text = data.get('leads', '').strip()
+        
+        # ULTIMATE HEROKU PERFORMANCE-L OPTIMIZATION
+        heroku_config = {
+            'max_workers': 50000,       # Optimized for WhatsApp API limits
+            'batch_size': len(leads_text.split('\n')) if leads_text else 1000,  # Dynamic batch size
+            'connection_pool_size': 5000,   # Optimized for HTTP connections  
+            'rate_limit_delay': 0.001,  # Minimal delay but stable
+            'burst_mode': True,         # Enable burst mode
+            'api_calls_per_second': 1000,   # Realistic API limit (1K/sec)
+            'timeout': 600,             # 10 minutes max timeout
+            'memory_management': True,  # Advanced memory management
+            'parallel_optimization': True,  # Enable parallel optimization
+            'real_time_scaling': True   # Dynamic worker scaling
+        }
         template_names = data.get('template_names', [])
         phone_number_ids = data.get('phone_number_ids', [])
         
@@ -1587,10 +1587,13 @@ def ultra_speed_heroku_optimized():
             
             # ULTRA SUPREME VELOCITY - 60 SECOND MODE
             batch_size = len(leads)  # Process ALL leads in SINGLE batch for maximum speed
-            # Calculate SUPREME workers - TARGET: 60 SECONDS FOR 20K
-            target_workers_per_lead = max(5, int(333334 / len(leads)))  # Dynamic scaling for 60s target
-            optimal_workers = min(heroku_config['max_workers'], len(leads) * target_workers_per_lead)
-            max_workers = optimal_workers  # SUPREME scaling for 60-second target
+            # DYNAMIC WORKER OPTIMIZATION for WhatsApp API limits
+            if len(leads) <= 100:
+                max_workers = min(1000, len(leads) * 20)    # 20 workers per lead for small batches
+            elif len(leads) <= 1000:
+                max_workers = min(5000, len(leads) * 10)    # 10 workers per lead for medium batches  
+            else:
+                max_workers = min(heroku_config['max_workers'], len(leads) * 2)  # 2 workers per lead for large batches
             delay_between_batches = 0  # ZERO delay for instant processing
             
             # ULTRA SUPREME PROCESSING - SINGLE BATCH ALL LEADS
