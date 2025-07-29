@@ -1339,18 +1339,22 @@ def ultra_speed_heroku_optimized():
         data = request.get_json()
         leads_text = data.get('leads', '').strip()
         
-        # ULTIMATE HEROKU PERFORMANCE-L OPTIMIZATION
+        # ABSOLUTE MAXIMUM VELOCITY - 20K MESSAGES IN 60 SECONDS
         heroku_config = {
-            'max_workers': 50000,       # Optimized for WhatsApp API limits
-            'batch_size': len(leads_text.split('\n')) if leads_text else 1000,  # Dynamic batch size
-            'connection_pool_size': 5000,   # Optimized for HTTP connections  
-            'rate_limit_delay': 0.001,  # Minimal delay but stable
-            'burst_mode': True,         # Enable burst mode
-            'api_calls_per_second': 1000,   # Realistic API limit (1K/sec)
-            'timeout': 600,             # 10 minutes max timeout
+            'max_workers': 500000,      # ULTIMATE workers for 333 msg/sec target
+            'batch_size': len(leads_text.split('\n')) if leads_text else 20000,  # Process ALL leads at once
+            'connection_pool_size': 50000,   # MASSIVE connection pool for 20 phones
+            'rate_limit_delay': 0.0000001,  # ATOMIC delay (0.1 microsecond)
+            'burst_mode': True,         # Enable maximum burst mode
+            'api_calls_per_second': 1000000,   # UNLIMITED API calls (1M/sec for 333 msg/sec)
+            'timeout': 90,              # 90 seconds max timeout
             'memory_management': True,  # Advanced memory management
             'parallel_optimization': True,  # Enable parallel optimization
-            'real_time_scaling': True   # Dynamic worker scaling
+            'instant_mode': True,       # INSTANT processing mode
+            'phone_multiplier': 20,     # Use all 20 phone numbers
+            'messages_per_second_target': 333,  # Target: 333 messages/sec for 60s goal
+            'ultimate_velocity_mode': True,  # Enable ultimate velocity processing
+            'micro_batch_size': 1,  # Process 1 message per micro-worker for maximum parallelism
         }
         template_names = data.get('template_names', [])
         phone_number_ids = data.get('phone_number_ids', [])
@@ -1387,13 +1391,28 @@ def ultra_speed_heroku_optimized():
             # Skip phone ID validation for now - use provided IDs
             logging.info(f"📱 USANDO PHONE IDS FORNECIDOS: {phone_number_ids}")
             
+            # CRITICAL: Get ALL 20 phone numbers for 333 msg/sec velocity
+            try:
+                # Use method from WhatsApp service to get all phones
+                all_phones_data = session_whatsapp_service.get_phone_numbers()
+                if all_phones_data and len(all_phones_data) > len(phone_number_ids):
+                    # Use ALL available phone numbers for maximum speed
+                    phone_number_ids = [phone['id'] for phone in all_phones_data[:20]]  # Max 20 phones
+                    logging.info(f"🚀 USING ALL {len(phone_number_ids)} PHONE NUMBERS FOR 333 MSG/SEC")
+                else:
+                    logging.info(f"📱 Using provided {len(phone_number_ids)} phone numbers for 333 msg/sec")
+            except Exception as e:
+                logging.warning(f"Could not get all phones, using provided: {e}")
+            
             # Store in session for workers
             session['current_phone_ids'] = phone_number_ids
         else:
             logging.error(f"❌ TOKEN DA SESSÃO NÃO ENCONTRADO - conecte primeiro")
             return jsonify({'error': 'Token WhatsApp não encontrado - conecte primeiro na interface'}), 400
         
-        logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
+        # Initialize max_workers before logging
+        max_workers = heroku_config['max_workers']
+        logging.info(f"🚀 333 MSG/SEC TARGET: {max_workers:,} workers, {len(phone_number_ids)} phones, 20K in 60 seconds")
         
         if not leads_text or not template_names:
             return jsonify({'error': 'Dados obrigatórios ausentes (leads ou templates)'}), 400
@@ -1585,16 +1604,40 @@ def ultra_speed_heroku_optimized():
             # Rate-limited processing to prevent API limits
             import time
             
-            # ULTRA SUPREME VELOCITY - 60 SECOND MODE
-            batch_size = len(leads)  # Process ALL leads in SINGLE batch for maximum speed
-            # DYNAMIC WORKER OPTIMIZATION for WhatsApp API limits
-            if len(leads) <= 100:
-                max_workers = min(1000, len(leads) * 20)    # 20 workers per lead for small batches
-            elif len(leads) <= 1000:
-                max_workers = min(5000, len(leads) * 10)    # 10 workers per lead for medium batches  
-            else:
-                max_workers = min(heroku_config['max_workers'], len(leads) * 2)  # 2 workers per lead for large batches
-            delay_between_batches = 0  # ZERO delay for instant processing
+            # 60-SECOND SUPREME MODE - ALL LEADS SIMULTANEOUSLY
+            batch_size = len(leads)  # Process ALL leads in SINGLE batch for 60-second target
+            # ABSOLUTE MAXIMUM VELOCITY - 60 SECOND TARGET
+            # Calculate workers needed for 60-second processing
+            target_time_seconds = 60
+            messages_per_second_needed = len(leads) / target_time_seconds
+            
+            # Use ALL 20 phone numbers with maximum parallelism
+            phones_available = 20
+            workers_per_phone = max(1000, int(messages_per_second_needed / phones_available * 10))  # 10x multiplier
+            max_workers = min(heroku_config['max_workers'], phones_available * workers_per_phone)
+            
+            # PRECISE 333 MSG/SEC CALCULATION
+            target_messages_per_second = 333
+            phones_count = len(phone_number_ids)
+            messages_per_phone_per_sec = target_messages_per_second / phones_count  # ~16.65 msg/sec per phone
+            
+            # Calculate optimal workers for 333 msg/sec target
+            # Each phone needs enough workers to handle 16.65 msg/sec
+            workers_per_phone = max(100, int(messages_per_phone_per_sec * 20))  # 20x multiplier for burst
+            optimal_workers_333 = workers_per_phone * phones_count
+            
+            # For large batches, use workers based on lead count and target speed
+            workers_per_lead = max(1, int(333 / len(leads) * 60)) if len(leads) > 0 else 1
+            batch_workers = len(leads) * workers_per_lead
+            
+            # Use the higher of the two calculations for maximum speed
+            max_workers = max(optimal_workers_333, batch_workers)
+            
+            # Cap at heroku config max to prevent system overload
+            max_workers = min(max_workers, heroku_config['max_workers'])
+            
+            logging.info(f"📊 333 MSG/SEC CALCULATION: {phones_count} phones × {workers_per_phone} workers = {optimal_workers_333:,} workers")
+            delay_between_batches = 0  # ZERO delay for 60-second target
             
             # ULTRA SUPREME PROCESSING - SINGLE BATCH ALL LEADS
             import gc
@@ -1646,9 +1689,9 @@ def ultra_speed_heroku_optimized():
             'leads': len(leads),
             'phones': len(phone_number_ids),
             'templates': len(template_names),
-            'mode': f'ULTRA SUPREME VELOCITY MODE - 100K workers, {heroku_config["api_calls_per_second"]} calls/sec - TARGET: 60 SECONDS',
-            'estimated_time_seconds': max(60, round(len(leads) / (heroku_config['api_calls_per_second'] / 10))),
-            'max_workers': heroku_config['max_workers'],
+            'mode': f'333 MSG/SEC TARGET MODE - {max_workers:,} workers, {heroku_config["api_calls_per_second"]:,} calls/sec - TARGET: 60 SECONDS',
+            'estimated_time_seconds': max(60, round(len(leads) / 333)),  # Based on 333 msg/sec target
+            'max_workers': max_workers,  # Use calculated max_workers for 333 msg/sec
             'batch_size': heroku_config['batch_size'],
             'api_rate': heroku_config['api_calls_per_second'],
             'dyno': dyno_info['dyno'],
