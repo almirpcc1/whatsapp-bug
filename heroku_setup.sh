@@ -33,7 +33,7 @@ heroku config:set RATE_LIMIT_DELAY=0.001 -a $APP_NAME
 echo ""
 echo "🚀 Fazendo deploy..."
 git add .
-git commit -m "Heroku deployment configuration"
+git commit -m "Heroku deployment configuration with .python-version"
 git push heroku main
 
 echo ""

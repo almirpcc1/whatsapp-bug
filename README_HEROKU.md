@@ -4,7 +4,7 @@
 
 ### 1. Arquivos de Configuração
 - `Procfile`: Configurado para Performance Dynos com 4 workers + 16 threads
-- `runtime.txt`: Python 3.11.10 (versão estável recomendada)
+- `.python-version`: Python 3.11 (compatível com buildpack uv do Heroku)
 - `app.json`: Configuração completa com addons e variáveis
 - `heroku_config.py`: Otimizações específicas para Heroku Performance Dynos
 
