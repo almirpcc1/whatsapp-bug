@@ -1739,7 +1739,9 @@ def get_progress(session_id):
     
     progress_percent = 0
     if counter['total'] > 0:
-        progress_percent = (counter['sent'] / counter['total']) * 100
+        # HEROKU FIX: Use sent + failed for accurate progress calculation
+        processed = counter['sent'] + counter['failed']
+        progress_percent = (processed / counter['total']) * 100
     
     # HEROKU DEBUG: Log progress data
     logging.info(f"🔍 PROGRESS DATA: {counter['sent']}/{counter['total']} = {progress_percent}%")
