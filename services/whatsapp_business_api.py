@@ -17,7 +17,6 @@ class WhatsAppBusinessAPI:
         self._phone_number_id = None
         self._business_account_id = None
         self._headers = None
-        self._last_token_check = None
         self._available_phones = []
         self._current_phone_index = 0
         
@@ -57,8 +56,6 @@ class WhatsAppBusinessAPI:
             logging.info(f"🔄 Token forçadamente atualizado: {new_token[:50]}...")
         
         # Auto-detect Business Manager and Phone based on token
-        if new_token and new_token != self._last_token_check:
-            self._last_token_check = new_token
             
             # Tentar descobrir automaticamente primeiro
             discovered = self._get_cached_fallback()
@@ -100,10 +97,11 @@ class WhatsAppBusinessAPI:
             
             new_phone_id = self._available_phones[0]
                 
-        elif new_token and new_token == self._last_token_check and self._business_account_id:
-            # Use cached credentials para evitar rate limits
-            new_phone_id = self._phone_number_id or (self._available_phones[0] if self._available_phones else None)
-            logging.info("Usando credenciais em cache para evitar rate limits")
+        elif new_token:
+            # ALWAYS FORCE FRESH - NO CACHE EVER
+            self._business_account_id = None
+            new_phone_id = None
+            logging.info("🔥 CACHE COMPLETAMENTE DESABILITADO - SEMPRE FRESH TOKEN DA INTERFACE")
         else:
             # Token hasn't changed, keep current phone ID
             new_phone_id = self._phone_number_id
@@ -118,7 +116,7 @@ class WhatsAppBusinessAPI:
                     'Authorization': f'Bearer {self._access_token}',
                     'Content-Type': 'application/json'
                 }
-                logging.info(f"Token atualizado - {len(self._available_phones)} phones disponíveis para seleção dinâmica (rate limit prevention ativo)")
+                logging.info(f"🔥 TOKEN DA INTERFACE - {len(self._available_phones)} phones descobertos FRESH (cache desabilitado)")
             else:
                 self._headers = {}
     

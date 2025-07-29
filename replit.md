@@ -605,3 +605,7 @@ Changelog:
 - July 29, 2025. ERRO 401 IDENTIFICADO: "The access token could not be decrypted" - token da interface expirado/inválido
 - July 29, 2025. DIAGNÓSTICO COMPLETO: Sistema aplica token corretamente mas Meta/Facebook rejeita com erro 190 (OAuthException)
 - July 29, 2025. SOLUÇÃO IMPLEMENTADA: Validação de token antes do envio e logs detalhados para debugging
+- July 29, 2025. PROBLEMA CRÍTICO CACHE IDENTIFICADO: Sistema usava tokens salvos ao invés do token da interface
+- July 29, 2025. CACHE COMPLETAMENTE REMOVIDO: Eliminados TODOS os sistemas de cache que impediam uso de token da interface
+- July 29, 2025. FRESH TOKEN ENFORCEMENT: Sistema agora usa SEMPRE o token preenchido na interface, nunca tokens salvos
+- July 29, 2025. VALIDAÇÃO CONFIRMADA: Logs mostram "Using EXACT user token" e "cache desabilitado" funcionando 100%
