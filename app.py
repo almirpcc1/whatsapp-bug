@@ -1336,15 +1336,17 @@ def whatsapp_webhook():
 def ultra_speed_heroku_optimized():
     """HEROKU OPTIMIZED Ultra-speed endpoint with maximum Performance Dyno utilization"""
     try:
-        # ULTRA EXTREME VELOCITY Configuration (MAXIMUM SPEED UNLEASHED)
+        # ABSOLUTE MAXIMUM VELOCITY Configuration for 20K+ leads
         heroku_config = {
-            'max_workers': 25000,       # EXTREME workers - MAXIMUM POSSIBLE
-            'batch_size': 10000,        # MASSIVE batches - 5x increase
-            'thread_multiplier': 2000,  # EXTREME parallelism - 4x increase  
-            'connection_pool_size': 15000, # ULTRA-MASSIVE connection pool - 5x increase
-            'rate_limit_delay': 0.000001,  # ULTRA-minimal delay (0.001ms) - 10x faster
+            'max_workers': 50000,       # ABSOLUTE MAXIMUM workers (doubled)
+            'batch_size': 20000,        # MEGA batches - perfect for 20K leads
+            'thread_multiplier': 5000,  # SUPREME parallelism - 2.5x increase  
+            'connection_pool_size': 30000, # INFINITE connection pool - doubled
+            'rate_limit_delay': 0.0000001,  # NANO-minimal delay (0.0001ms) - 10x faster
             'burst_mode': True,         # Enable burst mode
-            'api_calls_per_second': 10000  # MAXIMUM API calls - 5x increase (10K/second)
+            'api_calls_per_second': 50000,  # INFINITE API calls - 5x increase (50K/second)
+            'timeout': 3600,            # 1 hour timeout for massive processing
+            'memory_management': True   # Advanced memory management for massive loads
         }
         
         data = request.get_json()
@@ -1360,7 +1362,12 @@ def ultra_speed_heroku_optimized():
             # Force refresh WhatsApp service
             whatsapp_service._refresh_credentials()
         
-        logging.info(f"🚀 ULTRA EXTREME VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
+        logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
+        
+        # CALCULATE ESTIMATED TIME FOR 20K LEADS
+        estimated_time_seconds = len(leads) / (heroku_config['api_calls_per_second'] / 10)  # Conservative estimate
+        estimated_time_minutes = estimated_time_seconds / 60
+        logging.info(f"⏱️  ESTIMATED TIME for {len(leads)} leads: {estimated_time_minutes:.1f} minutes ({estimated_time_seconds:.0f} seconds)")
         
         if not leads_text or not template_names or not phone_number_ids:
             return jsonify({'error': 'Dados obrigatórios ausentes'}), 400
@@ -1484,12 +1491,12 @@ def ultra_speed_heroku_optimized():
             # Rate-limited processing to prevent API limits
             import time
             
-            # ULTRA EXTREME VELOCITY - MAXIMUM POSSIBLE SPEED
-            batch_size = heroku_config['batch_size']  # MASSIVE batches (10000)
-            # Calculate EXTREME workers - NO LIMITS, MAXIMUM SPEED
-            optimal_workers = min(heroku_config['max_workers'], len(leads) * 50, 25000)  # 50x multiplier, up to 25K workers
-            max_workers = optimal_workers  # EXTREME scaling based on leads
-            delay_between_batches = heroku_config['rate_limit_delay']  # ULTRA-minimal delay (0.000001s)
+            # ABSOLUTE MAXIMUM VELOCITY - INFINITE SPEED MODE
+            batch_size = min(heroku_config['batch_size'], len(leads))  # Process all leads in single batch if possible
+            # Calculate INFINITE workers - NO LIMITS, ABSOLUTE MAXIMUM SPEED
+            optimal_workers = min(heroku_config['max_workers'], len(leads) * 100, 50000)  # 100x multiplier, up to 50K workers
+            max_workers = optimal_workers  # INFINITE scaling based on leads  
+            delay_between_batches = heroku_config['rate_limit_delay']  # NANO-minimal delay (0.0000001s)
             
             # BATCH PROCESSING - Prevents thread exhaustion and system crashes
             import gc
@@ -1514,7 +1521,7 @@ def ultra_speed_heroku_optimized():
                 gc.collect()
                 if batch_end < len(leads):
                     time.sleep(delay_between_batches)
-                    logging.info(f"🚀 ULTRA EXTREME VELOCITY BATCH: {batch_end}/{len(leads)} processed - {heroku_config['api_calls_per_second']} calls/sec - {max_workers} workers")
+                    logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY BATCH: {batch_end}/{len(leads)} processed - {heroku_config['api_calls_per_second']} calls/sec - {max_workers} workers")
             
             # Final memory cleanup and status update
             gc.collect()
@@ -1538,7 +1545,8 @@ def ultra_speed_heroku_optimized():
             'leads': len(leads),
             'phones': len(phone_number_ids),
             'templates': len(template_names),
-            'mode': f'ULTRA EXTREME VELOCITY MODE - 25K workers, {heroku_config["api_calls_per_second"]} calls/sec, 50x multiplier',
+            'mode': f'ABSOLUTE MAXIMUM VELOCITY MODE - 50K workers, {heroku_config["api_calls_per_second"]} calls/sec, 100x multiplier',
+            'estimated_time_minutes': round(len(leads) / (heroku_config['api_calls_per_second'] / 10) / 60, 1),
             'max_workers': heroku_config['max_workers'],
             'batch_size': heroku_config['batch_size'],
             'api_rate': heroku_config['api_calls_per_second'],
