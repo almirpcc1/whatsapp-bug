@@ -11,65 +11,75 @@ class WhatsAppSender {
     }
     
     initializeEventListeners() {
-        // Test Z-API button
-        document.getElementById('testWhatsAppBtn').addEventListener('click', () => {
-            this.testWhatsAppConnection();
-        });
+        // Test WhatsApp button
+        const testBtn = document.getElementById('testWhatsAppBtn');
+        if (testBtn) {
+            testBtn.addEventListener('click', () => this.testWhatsAppConnection());
+        }
         
         // Validate leads button
-        document.getElementById('validateLeadsBtn').addEventListener('click', () => {
-            this.validateLeads();
-        });
+        const validateBtn = document.getElementById('validateLeadsBtn');
+        if (validateBtn) {
+            validateBtn.addEventListener('click', () => this.validateLeads());
+        }
         
         // Smart Distribution button
-        document.getElementById('smartDistributionBtn').addEventListener('click', () => {
-            this.sendSmartDistribution();
-        });
+        const smartBtn = document.getElementById('smartDistributionBtn');
+        if (smartBtn) {
+            smartBtn.addEventListener('click', () => this.sendSmartDistribution());
+        }
         
         // Template selection buttons
-        document.getElementById('selectAllTemplatesBtn').addEventListener('click', () => {
-            this.selectAllTemplates();
-        });
+        const selectAllBtn = document.getElementById('selectAllTemplatesBtn');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => this.selectAllTemplates());
+        }
         
-        document.getElementById('clearTemplatesBtn').addEventListener('click', () => {
-            this.clearTemplateSelection();
-        });
+        const clearBtn = document.getElementById('clearTemplatesBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearTemplateSelection());
+        }
         
 
         
 
         
         // Leads textarea change
-        document.getElementById('leadsInput').addEventListener('input', () => {
-            this.resetValidation();
-        });
+        const leadsInput = document.getElementById('leadsInput');
+        if (leadsInput) {
+            leadsInput.addEventListener('input', () => this.resetValidation());
+        }
         
-        // Template refresh button
-        document.getElementById('refreshTemplatesBtn').addEventListener('click', () => {
-            this.loadAvailableTemplates();
-        });
+        // Optional buttons that may not exist in the current interface
+        const refreshBtn = document.getElementById('refreshTemplatesBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => this.loadAvailableTemplates());
+        }
         
-        // Load templates button
-        document.getElementById('loadTemplatesBtn').addEventListener('click', () => {
-            this.loadAvailableTemplates();
-        });
+        const loadTemplatesBtn = document.getElementById('loadTemplatesBtn');
+        if (loadTemplatesBtn) {
+            loadTemplatesBtn.addEventListener('click', () => this.loadAvailableTemplates());
+        }
         
-        // Load phones button
-        document.getElementById('loadPhonesBtn').addEventListener('click', () => {
-            this.loadPhoneNumbers();
-        });
+        const loadPhonesBtn = document.getElementById('loadPhonesBtn');
+        if (loadPhonesBtn) {
+            loadPhonesBtn.addEventListener('click', () => this.loadPhoneNumbers());
+        }
         
 
         
 
         
-        // Business Manager ID change - salva automaticamente
-        document.getElementById('businessAccountId').addEventListener('input', (e) => {
-            const bmId = e.target.value.trim();
-            if (bmId && bmId.length > 5) { // Só salva se tem conteúdo válido
-                this.saveBusinessManagerId(bmId);
-            }
-        });
+        // Business Manager ID change - optional field
+        const businessAccountId = document.getElementById('businessAccountId');
+        if (businessAccountId) {
+            businessAccountId.addEventListener('input', (e) => {
+                const bmId = e.target.value.trim();
+                if (bmId && bmId.length > 5) {
+                    this.saveBusinessManagerId(bmId);
+                }
+            });
+        }
     }
     
     async loadPhoneNumbers() {
@@ -1167,8 +1177,8 @@ Confirmar envio ULTRA-RÁPIDO?`;
         const connectButton = document.getElementById('connectButton');
         
         if (connected && this.connectionData) {
-            connectionStatus.className = 'badge bg-success';
-            connectionStatus.textContent = 'Conectado';
+            connectionStatus.className = 'connection-status connected';
+            connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Conectado';
             connectionInfo.style.display = 'block';
             
             // Ocultar campos de entrada
@@ -1185,8 +1195,8 @@ Confirmar envio ULTRA-RÁPIDO?`;
             this.populatePhoneNumbers(this.connectionData.phone_numbers);
             this.populateTemplates(this.connectionData.templates);
         } else {
-            connectionStatus.className = 'badge bg-secondary';
-            connectionStatus.textContent = 'Desconectado';
+            connectionStatus.className = 'connection-status disconnected';
+            connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Desconectado';
             connectionInfo.style.display = 'none';
             
             // Mostrar campos de entrada
@@ -1445,7 +1455,7 @@ Confirmar envio ULTRA-RÁPIDO?`;
 
 // Initialize application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.whatsappSender = new WhatsAppSender();
+    window.whatsappSender = new WhatsAppBulkSender();
 });
 
 // Global functions for HTML onclick events
