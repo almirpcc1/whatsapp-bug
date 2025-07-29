@@ -590,3 +590,6 @@ Changelog:
 - July 29, 2025. CAUSA RAIZ IDENTIFICADA: Token não tem permissões para Phone Number IDs selecionados (Error #100)
 - July 29, 2025. SISTEMA LOGGING CRÍTICO: Workers agora logam todas tentativas de envio incluindo falhas
 - July 29, 2025. DIAGNÓSTICO COMPLETO: Sistema detecta phone numbers inválidos e tokens sem permissão automaticamente
+- July 29, 2025. PROBLEMA HEROKU LISTAS GRANDES IDENTIFICADO: Sistema funciona para 1 lead mas trava em 0% para listas maiores
+- July 29, 2025. VALIDAÇÃO PHONE IDS IMPLEMENTADA: Sistema valida automaticamente se phone IDs pertencem ao token atual
+- July 29, 2025. AUTO-CORREÇÃO PHONE IDS: Sistema substitui phone IDs inválidos por válidos da mesma Business Manager

@@ -1362,11 +1362,42 @@ def ultra_speed_heroku_optimized():
             logging.info(f"🔑 TOKEN DA SESSÃO APLICADO: {connection_data['access_token'][:50]}...")
             # Force refresh WhatsApp service
             whatsapp_service._refresh_credentials()
+            
+            # CRITICAL: Validate phone numbers belong to this token's BM
+            valid_phone_ids = []
+            try:
+                discovered_phones = whatsapp_service.get_available_phone_numbers()
+                discovered_ids = [phone['id'] for phone in discovered_phones if phone.get('id')]
+                
+                for phone_id in phone_number_ids:
+                    if phone_id in discovered_ids:
+                        valid_phone_ids.append(phone_id)
+                    else:
+                        logging.warning(f"⚠️  Phone ID {phone_id} não pertence ao token atual - ignorando")
+                
+                if not valid_phone_ids:
+                    logging.error(f"❌ NENHUM PHONE ID VÁLIDO - usando primeiro disponível")
+                    if discovered_ids:
+                        valid_phone_ids = [discovered_ids[0]]
+                        logging.info(f"✅ Usando phone ID válido: {valid_phone_ids[0]}")
+                    else:
+                        logging.error(f"❌ ERRO CRÍTICO: Nenhum phone ID disponível no token")
+                        return jsonify({'error': 'Token não possui phone numbers válidos'}), 400
+                
+                phone_number_ids = valid_phone_ids
+                logging.info(f"📱 PHONE IDS VALIDADOS: {len(phone_number_ids)} números válidos")
+                
+            except Exception as e:
+                logging.warning(f"Erro ao validar phone IDs: {e}")
+                # Continue com phone IDs originais se houver erro
         
         logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
         
-        if not leads_text or not template_names or not phone_number_ids:
-            return jsonify({'error': 'Dados obrigatórios ausentes'}), 400
+        if not leads_text or not template_names:
+            return jsonify({'error': 'Dados obrigatórios ausentes (leads ou templates)'}), 400
+        
+        if not phone_number_ids:
+            return jsonify({'error': 'Nenhum Phone Number ID válido encontrado para o token atual'}), 400
         
         # Parse leads
         leads = []
