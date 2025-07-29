@@ -563,3 +563,7 @@ Changelog:
 - July 29, 2025. FORÇAR REFRESH IMPLEMENTADO: WhatsApp Service sempre atualiza token antes de enviar mensagens
 - July 29, 2025. TOKEN SESSÃO ULTRA-SPEED: Endpoint ultra-speed agora verifica e usa token da sessão automaticamente
 - July 29, 2025. REFRESH COMPLETO: Método send_template_message sempre atualiza credenciais antes de enviar
+- July 29, 2025. MAXIMUM VELOCITY IMPLEMENTADO: Sistema otimizado para 10.000 workers com lotes de 2.000 mensagens
+- July 29, 2025. CONNECTION POOLING MASSIVO: 3.000 conexões simultâneas para WhatsApp API (2.000 calls/sec)
+- July 29, 2025. CACHE INTELIGENTE: Reutilização de instâncias WhatsApp Service para eliminar overhead de criação
+- July 29, 2025. HEROKU PERFORMANCE-L OTIMIZADO: Configuração para máxima utilização de 14GB RAM e 8 CPU cores

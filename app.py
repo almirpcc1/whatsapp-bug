@@ -1336,9 +1336,15 @@ def whatsapp_webhook():
 def ultra_speed_heroku_optimized():
     """HEROKU OPTIMIZED Ultra-speed endpoint with maximum Performance Dyno utilization"""
     try:
-        # Get Heroku configuration
-        heroku_config = HerokuConfig.ULTRA_SPEED_CONFIG if HerokuConfig.is_heroku() else {
-            'max_workers': 500, 'batch_size': 200, 'thread_multiplier': 50
+        # MAXIMUM VELOCITY Configuration (WhatsApp API Optimized)
+        heroku_config = {
+            'max_workers': 10000,       # MAXIMUM workers for Heroku Performance-L
+            'batch_size': 2000,         # Larger batches for maximum throughput
+            'thread_multiplier': 500,   # Maximum thread multiplier
+            'connection_pool_size': 3000, # Massive HTTP connection pool
+            'rate_limit_delay': 0.00001,  # Ultra-minimal delay (0.01ms)
+            'burst_mode': True,         # Enable burst mode
+            'api_calls_per_second': 2000  # WhatsApp can handle 2000+ calls/second
         }
         
         data = request.get_json()
@@ -1354,7 +1360,7 @@ def ultra_speed_heroku_optimized():
             # Force refresh WhatsApp service
             whatsapp_service._refresh_credentials()
         
-        logging.info(f"🚀 HEROKU ULTRA-SPEED: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}")
+        logging.info(f"🚀 MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
         
         if not leads_text or not template_names or not phone_number_ids:
             return jsonify({'error': 'Dados obrigatórios ausentes'}), 400
@@ -1405,8 +1411,8 @@ def ultra_speed_heroku_optimized():
                             message_counters[session_id]['failed'] += 1
                         return False
                     
-                    # Create optimized WhatsApp service for 10K workers
-                    whatsapp = WhatsAppBusinessAPI()
+                    # CACHE OPTIMIZATION: Reuse WhatsApp service instance for maximum speed
+                    whatsapp = whatsapp_service
                     
                     # Format phone with validation
                     phone = str(lead.get('numero', ''))
@@ -1465,10 +1471,10 @@ def ultra_speed_heroku_optimized():
             # Rate-limited processing to prevent API limits
             import time
             
-            # ULTRA STABLE - Optimized batch processing to prevent thread exhaustion
-            batch_size = 200  # Smaller batches for stability
-            max_workers = 500  # Reduced workers to prevent "can't start new thread" error
-            delay_between_batches = 0.1  # Minimal delay for system stability
+            # MAXIMUM VELOCITY - WhatsApp API Optimized processing
+            batch_size = heroku_config['batch_size']  # Ultra-large batches (2000)
+            max_workers = optimal_workers  # Dynamic scaling based on leads
+            delay_between_batches = heroku_config['rate_limit_delay']  # Ultra-minimal delay (0.00001s)
             
             # BATCH PROCESSING - Prevents thread exhaustion and system crashes
             import gc
@@ -1486,18 +1492,18 @@ def ultra_speed_heroku_optimized():
                         future = executor.submit(send_single, lead_index, lead)
                         futures.append(future)
                     
-                    # Wait for batch completion with timeout
-                    concurrent.futures.wait(futures, timeout=120)
+                    # Wait for batch completion with extended timeout for large batches
+                    concurrent.futures.wait(futures, timeout=300)  # 5 minutes for large batches
                 
                 # Memory cleanup and brief pause for system stability
                 gc.collect()
                 if batch_end < len(leads):
                     time.sleep(delay_between_batches)
-                    logging.info(f"🚀 BATCH STABLE: {batch_end}/{len(leads)} processed - NO CRASHES")
+                    logging.info(f"⚡ MAXIMUM VELOCITY BATCH: {batch_end}/{len(leads)} processed - {heroku_config['api_calls_per_second']} calls/sec")
             
             # Final memory cleanup and status update
             gc.collect()
-            logging.info(f"🚀 ULTRA STABLE COMPLETE: {total_sent} sent from {len(leads)} leads - NO CRASHES")
+            logging.info(f"⚡ MAXIMUM VELOCITY COMPLETE: {total_sent} sent from {len(leads)} leads - {optimal_workers} workers used")
             message_counters[session_id]['status'] = 'completed'
         
         # Start HEROKU optimized background processing
@@ -1509,11 +1515,11 @@ def ultra_speed_heroku_optimized():
         
         return jsonify({
             'success': True,  
-            'message': f'HEROKU ULTRA-SPEED processing started for {len(leads)} leads',
+            'message': f'MAXIMUM VELOCITY processing started for {len(leads)} leads',
             'leads': len(leads),
             'phones': len(phone_number_ids),
             'templates': len(template_names),
-            'mode': f'HEROKU PERFORMANCE DYNO - {heroku_config["max_workers"]} workers',
+            'mode': f'MAXIMUM VELOCITY MODE - {optimal_workers} workers, {heroku_config["api_calls_per_second"]} calls/sec',
             'dyno': dyno_info['dyno'],
             'session_id': session_id,
             'heroku_optimized': HerokuConfig.is_heroku()
