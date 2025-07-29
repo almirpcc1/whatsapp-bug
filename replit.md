@@ -567,3 +567,6 @@ Changelog:
 - July 29, 2025. CONNECTION POOLING MASSIVO: 3.000 conexões simultâneas para WhatsApp API (2.000 calls/sec)
 - July 29, 2025. CACHE INTELIGENTE: Reutilização de instâncias WhatsApp Service para eliminar overhead de criação
 - July 29, 2025. HEROKU PERFORMANCE-L OTIMIZADO: Configuração para máxima utilização de 14GB RAM e 8 CPU cores
+- July 29, 2025. HEROKU DEPLOYMENT SOLUTION: Criados Procfile, runtime.txt, deploy script e guia completo para resolver "no process types"
+- July 29, 2025. MAXIMUM VELOCITY HEROKU: Procfile otimizado com 8 workers, 16 threads, timeouts estendidos para alta performance
+- July 29, 2025. HEROKU AUTO-DEPLOY: Script deploy_heroku.sh criado para deployment automático com Performance-L dyno
