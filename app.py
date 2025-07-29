@@ -1538,6 +1538,11 @@ def ultra_speed_heroku_optimized():
                         message_id = response.get('messageId')
                         if message_id:
                             logging.info(f"✅ REAL MESSAGE SENT: {phone} - Message ID: {message_id}")
+                            # CRITICAL: Update counter FIRST before database
+                            with counter_lock:
+                                message_counters[session_id]['sent'] += 1
+                                logging.info(f"🔢 COUNTER UPDATED: {message_counters[session_id]['sent']}/{message_counters[session_id]['total']}")
+                            
                             # Save successful send to database with Flask context
                             try:
                                 from models import SentNumber
@@ -1558,13 +1563,6 @@ def ultra_speed_heroku_optimized():
                                 logging.warning(f"Erro ao salvar no banco: {db_error}")
                                 # Continue mesmo se houver erro no banco
                             
-                            with counter_lock:
-                                nonlocal total_sent
-                                total_sent += 1
-                                message_counters[session_id]['sent'] += 1
-                                # HEROKU DEBUG: Log progress updates
-                                if message_counters[session_id]['sent'] % 5 == 0:  # Log every 5 messages
-                                    logging.info(f"🔍 PROGRESS UPDATE: {message_counters[session_id]['sent']}/{message_counters[session_id]['total']} - Session: {session_id}")
                             return True
                     
                     # Any failure case - LOG THE EXACT REASON
