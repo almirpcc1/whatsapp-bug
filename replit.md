@@ -599,3 +599,6 @@ Changelog:
 - July 29, 2025. PROBLEMA SESSÃO CORRIGIDO: Sistema travado em 0% devido a token não sendo salvo na sessão Flask
 - July 29, 2025. SOLUÇÃO PAYLOAD IMPLEMENTADA: Frontend envia whatsapp_connection no payload, backend salva automaticamente na sessão
 - July 29, 2025. CORREÇÃO MÉTODO API: Corrigido erro 'get_phone_numbers' não existe - usando get_available_phone_numbers
+- July 29, 2025. HEROKU BUG CRÍTICO IDENTIFICADO: Mensagens não chegam no WhatsApp - token da interface não aplicado corretamente nos workers
+- July 29, 2025. DEBUGGING HEROKU IMPLEMENTADO: Logs mostram processamento 15/15 mas mensagens não chegam aos destinatários
+- July 29, 2025. CORREÇÃO WORKER TOKEN: Workers agora aplicam token múltiplas vezes e verificam se foi aplicado corretamente

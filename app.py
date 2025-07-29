@@ -1450,6 +1450,16 @@ def ultra_speed_heroku_optimized():
                 logging.error("❌ HEROKU: Session token perdido durante processamento")
                 return
             
+            # HEROKU DEBUG: Log the actual token being used
+            logging.info(f"🔑 PROCESSAMENTO COM TOKEN: {session_token[:50]}...")
+            logging.info(f"📱 PHONE IDS PARA USAR: {phone_number_ids}")
+            logging.info(f"📝 TEMPLATES PARA USAR: {template_names}")
+            
+            # HEROKU CRITICAL: Set token globally for ALL workers to access
+            import os
+            os.environ['HEROKU_SESSION_TOKEN'] = session_token  # New env var for Heroku
+            logging.info(f"🌍 GLOBAL TOKEN SET: HEROKU_SESSION_TOKEN = {session_token[:30]}...")
+            
             def send_single(lead_index, lead):
                 try:
                     # Round-robin phone and template selection with fail-safe
@@ -1462,11 +1472,23 @@ def ultra_speed_heroku_optimized():
                             message_counters[session_id]['failed'] += 1
                         return False
                     
-                    # HEROKU CRITICAL: Create NEW service instance with session token
-                    # Force update environment for this worker FIRST
-                    os.environ['WHATSAPP_ACCESS_TOKEN'] = session_token
+                    # HEROKU CRITICAL: Use global token set in environment
+                    worker_token = os.environ.get('HEROKU_SESSION_TOKEN') or session_token
+                    
+                    # Force update environment multiple times for safety
+                    os.environ['WHATSAPP_ACCESS_TOKEN'] = worker_token
+                    os.environ['WHATSAPP_PHONE_NUMBER_ID'] = phone_id
+                    
+                    # Create service instance - FORCE with direct token assignment
                     whatsapp = WhatsAppBusinessAPI()
+                    whatsapp._access_token = worker_token  # Direct assignment
                     whatsapp._refresh_credentials()
+                    
+                    # HEROKU DEBUG: Multiple verification
+                    logging.info(f"🔑 WORKER: {phone} using token {worker_token[:30]}...")
+                    if whatsapp._access_token != worker_token:
+                        logging.error(f"❌ FORCING TOKEN: {worker_token[:30]}...")
+                        whatsapp._access_token = worker_token
                     
                     # Format phone with validation
                     phone = str(lead.get('numero', ''))
