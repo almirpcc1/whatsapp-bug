@@ -1355,41 +1355,47 @@ def ultra_speed_heroku_optimized():
         template_names = data.get('template_names', [])
         phone_number_ids = data.get('phone_number_ids', [])
         
-        # CRÍTICO: Usar token da sessão se disponível
+        # CRÍTICO: Usar token da sessão SEMPRE - HEROKU FIX
         connection_data = session.get('whatsapp_connection', {})
-        if connection_data.get('access_token'):
-            os.environ['WHATSAPP_ACCESS_TOKEN'] = connection_data['access_token']
-            logging.info(f"🔑 TOKEN DA SESSÃO APLICADO: {connection_data['access_token'][:50]}...")
-            # Force refresh WhatsApp service
-            whatsapp_service._refresh_credentials()
+        current_token = connection_data.get('access_token')
+        
+        if current_token:
+            # Apply token to environment AND create new service instance
+            os.environ['WHATSAPP_ACCESS_TOKEN'] = current_token
+            logging.info(f"🔑 HEROKU TOKEN APLICADO: {current_token[:50]}...")
             
-            # CRITICAL: Validate phone numbers belong to this token's BM
-            valid_phone_ids = []
+            # CRITICAL: Create NEW WhatsApp service with session token
+            from services.whatsapp_business_api import WhatsAppBusinessAPI
+            session_whatsapp_service = WhatsAppBusinessAPI()
+            session_whatsapp_service.access_token = current_token
+            session_whatsapp_service._refresh_credentials()
+            
+            # Use session service for validation
             try:
-                discovered_phones = whatsapp_service.get_available_phone_numbers()
-                discovered_ids = [phone['id'] for phone in discovered_phones if phone.get('id')]
+                phone_numbers_list = session_whatsapp_service.get_phone_numbers()
+                discovered_ids = [phone['id'] for phone in phone_numbers_list if phone.get('id')]
                 
+                # Validate phone IDs belong to this token
+                valid_phone_ids = []
                 for phone_id in phone_number_ids:
                     if phone_id in discovered_ids:
                         valid_phone_ids.append(phone_id)
+                        logging.info(f"✅ Phone ID válido: {phone_id}")
                     else:
-                        logging.warning(f"⚠️  Phone ID {phone_id} não pertence ao token atual - ignorando")
+                        logging.warning(f"⚠️  Phone ID {phone_id} não pertence ao token - ignorando")
                 
-                if not valid_phone_ids:
-                    logging.error(f"❌ NENHUM PHONE ID VÁLIDO - usando primeiro disponível")
-                    if discovered_ids:
-                        valid_phone_ids = [discovered_ids[0]]
-                        logging.info(f"✅ Usando phone ID válido: {valid_phone_ids[0]}")
-                    else:
-                        logging.error(f"❌ ERRO CRÍTICO: Nenhum phone ID disponível no token")
-                        return jsonify({'error': 'Token não possui phone numbers válidos'}), 400
+                if not valid_phone_ids and discovered_ids:
+                    valid_phone_ids = [discovered_ids[0]]
+                    logging.info(f"🔄 Usando primeiro phone ID disponível: {valid_phone_ids[0]}")
                 
                 phone_number_ids = valid_phone_ids
-                logging.info(f"📱 PHONE IDS VALIDADOS: {len(phone_number_ids)} números válidos")
                 
             except Exception as e:
-                logging.warning(f"Erro ao validar phone IDs: {e}")
-                # Continue com phone IDs originais se houver erro
+                logging.error(f"❌ Erro ao validar phone IDs com token da sessão: {e}")
+                return jsonify({'error': 'Erro ao validar credenciais da sessão'}), 400
+        else:
+            logging.error(f"❌ TOKEN DA SESSÃO NÃO ENCONTRADO - conecte primeiro")
+            return jsonify({'error': 'Token WhatsApp não encontrado - conecte primeiro na interface'}), 400
         
         logging.info(f"🚀 ABSOLUTE MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
         
@@ -1442,6 +1448,12 @@ def ultra_speed_heroku_optimized():
             total_sent = 0
             counter_lock = threading.Lock()
             
+            # HEROKU CRITICAL: Create service with session token
+            session_token = connection_data.get('access_token')
+            if not session_token:
+                logging.error("❌ HEROKU: Session token perdido durante processamento")
+                return
+            
             def send_single(lead_index, lead):
                 try:
                     # Round-robin phone and template selection with fail-safe
@@ -1454,8 +1466,11 @@ def ultra_speed_heroku_optimized():
                             message_counters[session_id]['failed'] += 1
                         return False
                     
-                    # CACHE OPTIMIZATION: Reuse WhatsApp service instance for maximum speed
-                    whatsapp = whatsapp_service
+                    # HEROKU CRITICAL: Create NEW service instance with session token
+                    whatsapp = WhatsAppBusinessAPI()
+                    whatsapp.access_token = session_token
+                    # Force update environment for this worker
+                    os.environ['WHATSAPP_ACCESS_TOKEN'] = session_token
                     
                     # Format phone with validation
                     phone = str(lead.get('numero', ''))

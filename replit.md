@@ -593,3 +593,6 @@ Changelog:
 - July 29, 2025. PROBLEMA HEROKU LISTAS GRANDES IDENTIFICADO: Sistema funciona para 1 lead mas trava em 0% para listas maiores
 - July 29, 2025. VALIDAÇÃO PHONE IDS IMPLEMENTADA: Sistema valida automaticamente se phone IDs pertencem ao token atual
 - July 29, 2025. AUTO-CORREÇÃO PHONE IDS: Sistema substitui phone IDs inválidos por válidos da mesma Business Manager
+- July 29, 2025. PROBLEMA HEROKU TOKEN IDENTIFICADO: Token da interface não está sendo aplicado corretamente no processamento
+- July 29, 2025. CORREÇÃO HEROKU IMPLEMENTADA: Sistema cria nova instância WhatsApp Service com token da sessão para cada worker
+- July 29, 2025. VALIDAÇÃO SESSION TOKEN: Sistema agora valida e força uso do token da interface em todos workers
