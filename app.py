@@ -98,6 +98,113 @@ def get_business_manager_id():
         logging.error(f"Erro ao buscar Business Manager ID: {str(e)}")
         return jsonify({'business_manager_id': ''})
 
+@app.route('/api/connect-whatsapp', methods=['POST'])
+def connect_whatsapp():
+    """Conecta com WhatsApp Business API usando token fornecido"""
+    try:
+        data = request.get_json()
+        access_token = data.get('access_token', '').strip()
+        business_manager_id = data.get('business_manager_id', '').strip()
+        
+        if not access_token:
+            return jsonify({'success': False, 'message': 'Token de acesso é obrigatório'}), 400
+        
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+        
+        # 1. Descobrir Business Manager ID se não fornecido
+        discovered_bm_id = business_manager_id
+        if not discovered_bm_id:
+            logging.info("Descobrindo Business Manager ID automaticamente...")
+            me_url = 'https://graph.facebook.com/v22.0/me?fields=businesses'
+            me_response = requests.get(me_url, headers=headers, timeout=10)
+            
+            if me_response.status_code == 200:
+                me_data = me_response.json()
+                businesses = me_data.get('businesses', {}).get('data', [])
+                if businesses:
+                    discovered_bm_id = businesses[0]['id']
+                    logging.info(f"Business Manager ID descoberto: {discovered_bm_id}")
+                else:
+                    return jsonify({'success': False, 'message': 'Nenhuma Business Manager encontrada neste token'}), 400
+            else:
+                return jsonify({'success': False, 'message': 'Erro ao descobrir Business Manager - token inválido?'}), 400
+        
+        # 2. Buscar Phone Numbers
+        logging.info(f"Buscando phone numbers da BM {discovered_bm_id}...")
+        phones_url = f'https://graph.facebook.com/v22.0/{discovered_bm_id}/phone_numbers'
+        phones_response = requests.get(phones_url, headers=headers, timeout=15)
+        
+        phone_numbers = []
+        if phones_response.status_code == 200:
+            phones_data = phones_response.json()
+            for phone in phones_data.get('data', []):
+                phone_numbers.append({
+                    'id': phone.get('id'),
+                    'display_phone_number': phone.get('display_phone_number'),
+                    'quality_rating': phone.get('quality_rating', 'UNKNOWN'),
+                    'verified_name': phone.get('verified_name', '')
+                })
+            logging.info(f"Encontrados {len(phone_numbers)} phone numbers")
+        else:
+            logging.warning(f"Erro ao buscar phone numbers: {phones_response.status_code}")
+        
+        # 3. Buscar Templates
+        logging.info(f"Buscando templates da BM {discovered_bm_id}...")
+        templates_url = f'https://graph.facebook.com/v22.0/{discovered_bm_id}/message_templates'
+        templates_response = requests.get(templates_url, headers=headers, timeout=15)
+        
+        templates = []
+        if templates_response.status_code == 200:
+            templates_data = templates_response.json()
+            for template in templates_data.get('data', []):
+                if template.get('status') == 'APPROVED':
+                    templates.append({
+                        'name': template.get('name'),
+                        'language': template.get('language'),
+                        'category': template.get('category'),
+                        'status': template.get('status'),
+                        'has_parameters': bool(template.get('components', [])),
+                        'has_buttons': any(comp.get('type') == 'BUTTONS' for comp in template.get('components', []))
+                    })
+            logging.info(f"Encontrados {len(templates)} templates aprovados")
+        else:
+            logging.warning(f"Erro ao buscar templates: {templates_response.status_code}")
+        
+        # 4. Salvar dados na sessão
+        session['whatsapp_connection'] = {
+            'access_token': access_token,
+            'business_manager_id': discovered_bm_id,
+            'connected_at': datetime.utcnow().isoformat()
+        }
+        session['last_business_manager_id'] = discovered_bm_id
+        
+        # 5. Retornar dados da conexão
+        connection_data = {
+            'business_manager_id': discovered_bm_id,
+            'phone_numbers': phone_numbers,
+            'templates': templates,
+            'connected_at': datetime.utcnow().isoformat()
+        }
+        
+        logging.info(f"Conexão estabelecida com sucesso - BM: {discovered_bm_id}, Phones: {len(phone_numbers)}, Templates: {len(templates)}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Conectado com sucesso!',
+            'data': connection_data
+        })
+        
+    except requests.exceptions.Timeout:
+        return jsonify({'success': False, 'message': 'Timeout na conexão com WhatsApp API'}), 500
+    except requests.exceptions.RequestException as e:
+        return jsonify({'success': False, 'message': f'Erro de conexão: {str(e)}'}), 500
+    except Exception as e:
+        logging.error(f"Erro ao conectar WhatsApp: {str(e)}")
+        return jsonify({'success': False, 'message': f'Erro interno: {str(e)}'}), 500
+
 @app.route('/api/phone-numbers', methods=['GET'])
 def get_phone_numbers():
     """Busca phone numbers da Business Manager especificada ou baseado no token"""

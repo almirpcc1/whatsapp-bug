@@ -3,24 +3,14 @@ class WhatsAppSender {
     constructor() {
         this.leads = [];
         this.validationErrors = [];
+        this.connectionData = null; // Store connection info
 
         this.currentCampaignId = null;
         this.statusCheckInterval = null;
         
         this.initializeEventListeners();
-        this.loadLastBusinessManagerId(); // Load last saved BM ID
-        this.testWhatsAppConnection();
-        this.loadPhoneNumbers(); // Load phone numbers on init
-        this.refreshCampaigns();
+        this.checkSavedConnection(); // Check for saved connection first
         this.loadURLParameters(); // Load leads from URL if present
-        // Auto-load templates after BM ID is loaded
-        setTimeout(() => {
-            this.autoLoadTemplates();
-        }, 2000);
-        setTimeout(() => {
-            // Auto-refresh connection test periodically to detect new credentials
-            this.testWhatsAppConnection();
-        }, 5000);
     }
     
     initializeEventListeners() {
@@ -1291,6 +1281,229 @@ Confirmar envio ULTRA-RÁPIDO?`;
         }
     }
     
+    // ========== CONNECTION FUNCTIONS ==========
+    
+    checkSavedConnection() {
+        const savedConnection = localStorage.getItem('whatsapp_connection');
+        if (savedConnection) {
+            try {
+                this.connectionData = JSON.parse(savedConnection);
+                this.updateConnectionUI(true);
+                this.loadConnectionData();
+            } catch (error) {
+                console.error('Erro ao carregar conexão salva:', error);
+                localStorage.removeItem('whatsapp_connection');
+            }
+        }
+    }
+    
+    async connectWhatsApp() {
+        const accessToken = document.getElementById('accessToken').value.trim();
+        const businessManagerId = document.getElementById('businessManagerId').value.trim();
+        
+        if (!accessToken) {
+            this.showAlert('Token de acesso é obrigatório', 'danger');
+            return;
+        }
+        
+        const connectButton = document.getElementById('connectButton');
+        const originalText = connectButton.innerHTML;
+        connectButton.disabled = true;
+        connectButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Conectando...';
+        
+        try {
+            const response = await fetch('/api/connect-whatsapp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    access_token: accessToken,
+                    business_manager_id: businessManagerId || null
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                this.connectionData = result.data;
+                
+                // Salvar conexão no localStorage
+                localStorage.setItem('whatsapp_connection', JSON.stringify(this.connectionData));
+                
+                this.updateConnectionUI(true);
+                this.loadConnectionData();
+                
+                this.showAlert('Conectado com sucesso! Carregando dados...', 'success');
+            } else {
+                this.showAlert(result.message || 'Erro ao conectar', 'danger');
+            }
+        } catch (error) {
+            console.error('Erro de conexão:', error);
+            this.showAlert('Erro de conexão com o servidor', 'danger');
+        } finally {
+            connectButton.disabled = false;
+            connectButton.innerHTML = originalText;
+        }
+    }
+    
+    disconnect() {
+        this.connectionData = null;
+        localStorage.removeItem('whatsapp_connection');
+        this.updateConnectionUI(false);
+        this.clearConnectionData();
+        this.showAlert('Desconectado com sucesso', 'info');
+    }
+    
+    updateConnectionUI(connected) {
+        const connectionStatus = document.getElementById('connectionStatus');
+        const connectionInfo = document.getElementById('connectionInfo');
+        const accessToken = document.getElementById('accessToken');
+        const businessManagerId = document.getElementById('businessManagerId');
+        const connectButton = document.getElementById('connectButton');
+        
+        if (connected && this.connectionData) {
+            connectionStatus.className = 'badge bg-success';
+            connectionStatus.textContent = 'Conectado';
+            connectionInfo.style.display = 'block';
+            
+            // Ocultar campos de entrada
+            accessToken.style.display = 'none';
+            businessManagerId.style.display = 'none';
+            connectButton.style.display = 'none';
+            
+            // Preencher informações de conexão
+            document.getElementById('connectedBmId').textContent = this.connectionData.business_manager_id;
+            document.getElementById('connectedPhones').textContent = this.connectionData.phone_numbers.length;
+            document.getElementById('connectedTemplates').textContent = this.connectionData.templates.length;
+        } else {
+            connectionStatus.className = 'badge bg-secondary';
+            connectionStatus.textContent = 'Desconectado';
+            connectionInfo.style.display = 'none';
+            
+            // Mostrar campos de entrada
+            accessToken.style.display = 'block';
+            businessManagerId.style.display = 'block';
+            connectButton.style.display = 'block';
+            
+            // Limpar campos
+            accessToken.value = '';
+            businessManagerId.value = '';
+        }
+    }
+    
+    loadConnectionData() {
+        if (!this.connectionData) return;
+        
+        // Carregar phone numbers
+        this.loadPhoneNumbersFromConnection();
+        
+        // Carregar templates
+        this.loadTemplatesFromConnection();
+        
+        // Salvar BM ID na sessão
+        this.saveBusinessManagerId(this.connectionData.business_manager_id);
+        
+        // Atualizar campo BM ID (se existir)
+        const bmField = document.getElementById('businessAccountId');
+        if (bmField) {
+            bmField.value = this.connectionData.business_manager_id;
+        }
+    }
+    
+    loadPhoneNumbersFromConnection() {
+        if (!this.connectionData || !this.connectionData.phone_numbers) return;
+        
+        const container = document.getElementById('phoneNumbersContainer');
+        if (!container) return;
+        
+        const phonesHtml = this.connectionData.phone_numbers.map(phone => {
+            return `
+                <div class="form-check mb-2">
+                    <input class="form-check-input phone-checkbox" type="checkbox" 
+                           value="${phone.id}" id="phone_${phone.id}">
+                    <label class="form-check-label" for="phone_${phone.id}">
+                        <strong>${phone.display_phone_number}</strong><br>
+                        <small class="text-muted">Quality: ${phone.quality_rating || 'UNKNOWN'}</small>
+                    </label>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = phonesHtml;
+        
+        // Add event listeners
+        const checkboxes = container.querySelectorAll('.phone-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateDistributionInfo();
+            });
+        });
+        
+        console.log(`${this.connectionData.phone_numbers.length} phone numbers carregados da conexão`);
+    }
+    
+    loadTemplatesFromConnection() {
+        if (!this.connectionData || !this.connectionData.templates) return;
+        
+        const container = document.getElementById('templatesContainer');
+        if (!container) return;
+        
+        const templatesHtml = this.connectionData.templates
+            .filter(template => template.status === 'APPROVED')
+            .map(template => {
+                const features = [];
+                if (template.has_parameters) features.push('parâmetros');
+                if (template.has_buttons) features.push('botões');
+                const featureText = features.length > 0 ? ` [${features.join(', ')}]` : '';
+                
+                return `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input template-checkbox" type="checkbox" 
+                               value="${template.name}" id="template_${template.name}">
+                        <label class="form-check-label" for="template_${template.name}">
+                            <strong>${template.name}</strong><br>
+                            <small class="text-muted">${template.language} - ${template.category}${featureText}</small>
+                        </label>
+                    </div>
+                `;
+            }).join('');
+        
+        container.innerHTML = templatesHtml;
+        
+        // Add event listeners
+        const checkboxes = container.querySelectorAll('.template-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateDistributionInfo();
+                this.updateTemplateButtons();
+            });
+        });
+        
+        this.updateTemplateButtons();
+        console.log(`${this.connectionData.templates.length} templates carregados da conexão`);
+    }
+    
+    clearConnectionData() {
+        // Limpar phone numbers
+        const phoneContainer = document.getElementById('phoneNumbersContainer');
+        if (phoneContainer) {
+            phoneContainer.innerHTML = '<div class="text-muted text-center py-3">Conecte-se primeiro para ver os números</div>';
+        }
+        
+        // Limpar templates
+        const templateContainer = document.getElementById('templatesContainer');
+        if (templateContainer) {
+            templateContainer.innerHTML = '<div class="text-muted text-center py-3">Conecte-se primeiro para ver os templates</div>';
+        }
+        
+        // Limpar campo BM ID
+        const bmField = document.getElementById('businessAccountId');
+        if (bmField) {
+            bmField.value = '';
+        }
+    }
+    
 
     
 
@@ -1302,3 +1515,16 @@ Confirmar envio ULTRA-RÁPIDO?`;
 document.addEventListener('DOMContentLoaded', () => {
     window.whatsappSender = new WhatsAppSender();
 });
+
+// Global functions for HTML onclick events
+function connectWhatsApp() {
+    if (window.whatsappSender) {
+        window.whatsappSender.connectWhatsApp();
+    }
+}
+
+function disconnect() {
+    if (window.whatsappSender) {
+        window.whatsappSender.disconnect();
+    }
+}
