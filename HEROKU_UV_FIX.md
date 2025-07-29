@@ -1,6 +1,6 @@
-# 🔧 HEROKU UV COMPATIBILITY FIX
+# 🔧 HEROKU DEPLOYMENT FIXES
 
-## Problema
+## Problema 1: UV Compatibility
 ```
 Error: The runtime.txt file isn't supported when using uv.
 When using the package manager uv on Heroku, you must specify
@@ -8,20 +8,27 @@ your app's Python version with a .python-version file and not
 a runtime.txt file.
 ```
 
-## ✅ SOLUÇÃO RÁPIDA
+## Problema 2: Gunicorn Threads Error
+```
+gunicorn: error: argument --threads: expected one argument
+```
+
+## ✅ SOLUÇÃO COMPLETA
 
 ```bash
-# 1. Remover runtime.txt
+# 1. Remover runtime.txt (não compatível com uv)
 rm -f runtime.txt
 
-# 2. Criar .python-version
+# 2. Criar .python-version (compatível com uv)
 echo "3.11" > .python-version
 
-# 3. Commit mudanças
-git add --all
-git commit -m "Fix Heroku uv compatibility: replace runtime.txt with .python-version"
+# 3. Procfile já corrigido (removido argumento --threads problemático)
 
-# 4. Deploy novamente
+# 4. Commit mudanças
+git add --all
+git commit -m "Fix Heroku deployment: uv compatibility + gunicorn threads fix"
+
+# 5. Deploy novamente
 git push heroku main
 ```
 

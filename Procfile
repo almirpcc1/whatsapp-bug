@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT --workers $WEB_CONCURRENCY --threads $THREADS_PER_WORKER --timeout $TIMEOUT --keep-alive 30 --max-requests 10000 --max-requests-jitter 1000 --worker-class sync --worker-connections 3000 --preload main:app
+web: gunicorn --bind 0.0.0.0:$PORT --workers ${WEB_CONCURRENCY:-8} --timeout ${TIMEOUT:-1200} --keep-alive 30 --max-requests 10000 --max-requests-jitter 1000 --worker-class sync --worker-connections 3000 --preload --access-logfile - --error-logfile - main:app

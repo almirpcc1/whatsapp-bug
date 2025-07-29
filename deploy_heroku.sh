@@ -42,14 +42,13 @@ echo "⚡ Setting ULTRA EXTREME VELOCITY configuration..."
 heroku config:set \
   FLASK_ENV=production \
   WEB_CONCURRENCY=8 \
-  THREADS_PER_WORKER=16 \
   TIMEOUT=1200 \
   MAX_WORKERS=25000 \
   BATCH_SIZE=10000 \
   CONNECTION_POOL_SIZE=15000 \
   THREAD_MULTIPLIER=2000 \
   API_CALLS_PER_SECOND=10000 \
-  RATE_LIMIT_DELAY=0.0000010 \
+  RATE_LIMIT_DELAY=0.000001 \
   --app $APP_NAME
 
 # Initial scaling (user can change this in Heroku dashboard)
