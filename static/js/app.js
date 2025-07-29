@@ -485,7 +485,9 @@ class WhatsAppSender {
             const requestData = {
                 leads: leadsText,
                 template_names: selectedTemplates.map(t => t.name),
-                phone_number_ids: phoneNumbers.map(p => p.id)
+                phone_number_ids: phoneNumbers.map(p => p.id),
+                // CRITICAL: Send connection data
+                whatsapp_connection: this.connectionData
             };
             
             const response = await fetch('/api/ultra-speed', {
