@@ -49,7 +49,7 @@ db.init_app(app)
 
 with app.app_context():
     import models
-    from models import Campaign  # Import Campaign model for type checking
+
     db.create_all()
 
 from services.whatsapp_business_api import WhatsAppBusinessAPI
@@ -561,20 +561,33 @@ def send_messages():
         # Set the phone number ID for this request
         whatsapp_service.set_phone_number_id(phone_number_id)
         
-        # Create message campaign with template name
-        campaign_id = message_service.create_campaign(leads, template_name, buttons)
-        
-        # Start sending messages in background thread with Flask context
+        # Send messages directly without campaign system
         def send_messages_async():
             with app.app_context():
-                message_service.send_campaign_messages(campaign_id)
+                success_count = 0
+                error_count = 0
+                
+                for lead in leads:
+                    try:
+                        # Send message to each lead
+                        result = whatsapp_service.send_template_message(
+                            lead['numero'], template_name, [lead['cpf'], lead['nome']], 'pt_BR'
+                        )
+                        if result['success']:
+                            success_count += 1
+                        else:
+                            error_count += 1
+                    except Exception as e:
+                        error_count += 1
+                        logging.error(f"Error sending message to {lead['numero']}: {str(e)}")
+                
+                logging.info(f"Bulk sending completed: {success_count} success, {error_count} errors")
         
         thread = threading.Thread(target=send_messages_async)
         thread.daemon = True
         thread.start()
         
         return jsonify({
-            'campaign_id': campaign_id,
             'message': 'Envio de mensagens iniciado',
             'total_leads': len(leads)
         })
@@ -776,19 +789,7 @@ def send_instant():
         logging.error(f"Error in instant sending: {str(e)}")
         return jsonify({'error': 'Erro no envio instantâneo'}), 500
 
-@app.route('/api/campaign-status/<int:campaign_id>')
-def get_campaign_status(campaign_id):
-    """Get campaign status and progress"""
-    try:
-        status = message_service.get_campaign_status(campaign_id)
-        if not status:
-            return jsonify({'error': 'Campanha não encontrada'}), 404
-        
-        return jsonify(status)
-    
-    except Exception as e:
-        logging.error(f"Error getting campaign status: {str(e)}")
-        return jsonify({'error': 'Erro interno do servidor'}), 500
+
 
 @app.route('/api/test-whatsapp', methods=['POST'])
 def test_whatsapp():
@@ -866,100 +867,6 @@ def get_templates():
     except Exception as e:
         logging.error(f"Error getting templates: {str(e)}")
         return jsonify({'success': False, 'error': f'Erro interno: {str(e)}'}), 500
-
-# Global variable to track active campaigns
-active_campaigns = {}
-campaign_pause_flags = {}
-
-@app.route('/api/campaigns')
-def get_campaigns():
-    """Get all campaigns (active and completed)"""
-    try:
-        from models import Campaign
-        campaigns = Campaign.query.order_by(Campaign.created_at.desc()).limit(20).all()
-        
-        campaigns_data = []
-        for campaign in campaigns:
-            # Check if campaign is currently active
-            is_active = campaign.id in active_campaigns
-            is_paused = campaign.id in campaign_pause_flags
-            
-            campaigns_data.append({
-                'id': campaign.id,
-                'status': campaign.status,
-                'is_active': is_active,
-                'is_paused': is_paused,
-                'total_leads': campaign.total_leads,
-                'sent_count': campaign.sent_count,
-                'success_count': campaign.success_count,
-                'error_count': campaign.error_count,
-                'created_at': campaign.created_at.isoformat(),
-                'completed_at': campaign.completed_at.isoformat() if campaign.completed_at else None,
-                'template': campaign.template[:50] + '...' if len(campaign.template) > 50 else campaign.template
-            })
-        
-        return jsonify({'campaigns': campaigns_data}), 200
-        
-    except Exception as e:
-        logging.error(f"Error fetching campaigns: {str(e)}")
-        return jsonify({'error': 'Erro ao buscar campanhas'}), 500
-
-@app.route('/api/campaigns/<int:campaign_id>/pause', methods=['POST'])
-def pause_campaign(campaign_id):
-    """Pause an active campaign"""
-    try:
-        if campaign_id in active_campaigns:
-            campaign_pause_flags[campaign_id] = True
-            logging.info(f"Campaign {campaign_id} paused by user")
-            return jsonify({'success': True, 'message': 'Campanha pausada'}), 200
-        else:
-            return jsonify({'error': 'Campanha não está ativa'}), 400
-            
-    except Exception as e:
-        logging.error(f"Error pausing campaign: {str(e)}")
-        return jsonify({'error': 'Erro ao pausar campanha'}), 500
-
-@app.route('/api/campaigns/<int:campaign_id>/resume', methods=['POST'])
-def resume_campaign(campaign_id):
-    """Resume a paused campaign"""
-    try:
-        if campaign_id in campaign_pause_flags:
-            del campaign_pause_flags[campaign_id]
-            logging.info(f"Campaign {campaign_id} resumed by user")
-            return jsonify({'success': True, 'message': 'Campanha retomada'}), 200
-        else:
-            return jsonify({'error': 'Campanha não está pausada'}), 400
-            
-    except Exception as e:
-        logging.error(f"Error resuming campaign: {str(e)}")
-        return jsonify({'error': 'Erro ao retomar campanha'}), 500
-
-@app.route('/api/campaigns/<int:campaign_id>/stop', methods=['POST'])
-def stop_campaign(campaign_id):
-    """Stop an active campaign completely"""
-    try:
-        if campaign_id in active_campaigns:
-            # Mark as stopped
-            campaign = Campaign.query.get(campaign_id)
-            if campaign:
-                campaign.status = 'stopped'
-                campaign.completed_at = datetime.utcnow()
-                db.session.commit()
-            
-            # Remove from active campaigns
-            if campaign_id in active_campaigns:
-                del active_campaigns[campaign_id]
-            if campaign_id in campaign_pause_flags:
-                del campaign_pause_flags[campaign_id]
-                
-            logging.info(f"Campaign {campaign_id} stopped by user")
-            return jsonify({'success': True, 'message': 'Campanha interrompida'}), 200
-        else:
-            return jsonify({'error': 'Campanha não está ativa'}), 400
-            
-    except Exception as e:
-        logging.error(f"Error stopping campaign: {str(e)}")
-        return jsonify({'error': 'Erro ao interromper campanha'}), 500
 
 @app.route('/api/send-mega-batch', methods=['POST'])
 def send_mega_batch():

@@ -551,3 +551,6 @@ Changelog:
 - July 29, 2025. INTERFACE ANTI-DUPLICAÇÃO: Frontend mostra leads filtrados com informações detalhadas sobre duplicatas
 - July 29, 2025. PÁGINA ADMINISTRATIVA: `/admin/sent-numbers` permite visualizar e gerenciar números enviados
 - July 29, 2025. GESTÃO COMPLETA DUPLICATAS: Funcionalidades para limpar todos números ou remover individualmente
+- July 29, 2025. SEÇÃO CAMPANHAS REMOVIDA: Removida completamente seção de campanhas do HTML e JavaScript por solicitação do usuário
+- July 29, 2025. INTERFACE LIMPA: Sistema agora foca apenas no envio de mensagens ultra-rápido sem rastreamento de campanhas
+- July 29, 2025. CÓDIGO OTIMIZADO: Removidas todas rotas e funções relacionadas a gerenciamento de campanhas
