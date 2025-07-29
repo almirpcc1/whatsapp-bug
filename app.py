@@ -1699,17 +1699,17 @@ def ultra_speed_heroku_optimized():
                     message_counters[session_id]['progress'] = 100.0
                 logging.info(f"🔍 HEROKU FINAL STATUS: Session {session_id} completed - {message_counters[session_id]}")
                 
-                # HEROKU DEBUG: Keep session alive for 5 minutes for frontend access
-                def cleanup_session():
-                    import time
-                    time.sleep(300)  # 5 minutes
-                    if session_id in message_counters:
-                        del message_counters[session_id]
-                        logging.info(f"🧹 Session {session_id} cleaned up after 5 minutes")
+                # HEROKU CRITICAL: Keep session data permanently for debugging
+                message_counters[session_id]['completed_at'] = time.time()
+                message_counters[session_id]['permanent'] = True  # Never cleanup for debugging
                 
-                import threading
-                cleanup_thread = threading.Thread(target=cleanup_session, daemon=True)
-                cleanup_thread.start()
+                # HEROKU DEBUG: Log final counts for user verification
+                sent_count = message_counters[session_id]['sent']
+                failed_count = message_counters[session_id]['failed']
+                total_count = message_counters[session_id]['total']
+                
+                logging.info(f"🎯 HEROKU FINAL RESULT: {sent_count} enviadas, {failed_count} falharam de {total_count} total")
+                logging.info(f"🔗 SESSÃO PERMANENTE: {session_id} - Dados salvos permanentemente para acesso")
         
         # Start HEROKU optimized background processing
         import threading
@@ -1747,10 +1747,20 @@ def get_progress(session_id):
     
     counter = message_counters.get(session_id, {})
     if not counter:
-        logging.warning(f"🔍 SESSION NOT FOUND: {session_id}")
+        logging.warning(f"🔍 HEROKU SESSION NOT FOUND: {session_id}")
+        logging.warning(f"🔍 AVAILABLE SESSIONS: {list(message_counters.keys())}")
+        
+        # NO FALLBACK - Return real session not found error
+        logging.error(f"🚫 REAL SESSION NOT FOUND: {session_id} - No fallback, returning real error")
+        
         return jsonify({
             'success': False,
-            'error': 'Session not found'
+            'error': 'Session not found and no fallback available',
+            'sent': 0,
+            'failed': 0,
+            'total': 0,
+            'progress': 0,
+            'status': 'not_found'
         }), 404
     
     progress_percent = 0

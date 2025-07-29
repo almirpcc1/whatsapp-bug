@@ -559,9 +559,30 @@ class WhatsAppSender {
                 } else {
                     // Handle session not found or error
                     console.error('HEROKU Progress API Error:', data);
+                    
+                    // NO FALLBACK - Show real error when session is lost
+                    
                     if (data.error && data.error.includes('Session not found')) {
                         document.getElementById('statusMessage').innerHTML = 
-                            `<i class="fas fa-exclamation-triangle text-warning me-2"></i>Sessão expirada - dados podem ter sido perdidos`;
+                            `<i class="fas fa-exclamation-triangle text-warning me-2"></i>SESSÃO PERDIDA - Verifique logs do Heroku para resultado real`;
+                        
+                        // Show what we know from the error response
+                        if (data.sent !== undefined || data.failed !== undefined) {
+                            const sent = data.sent || 0;
+                            const failed = data.failed || 0;
+                            const total = data.total || 0;
+                            
+                            document.getElementById('sentProgress').textContent = sent;
+                            document.getElementById('totalProgress').textContent = total;
+                            document.getElementById('successProgress').textContent = sent;
+                            document.getElementById('errorProgress').textContent = failed;
+                            
+                            if (total > 0) {
+                                const progress = ((sent + failed) / total) * 100;
+                                document.getElementById('progressBar').style.width = `${progress}%`;
+                                document.getElementById('progressPercent').textContent = `${progress}%`;
+                            }
+                        }
                     }
                 }
             } catch (error) {
