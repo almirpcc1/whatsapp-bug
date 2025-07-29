@@ -1336,15 +1336,15 @@ def whatsapp_webhook():
 def ultra_speed_heroku_optimized():
     """HEROKU OPTIMIZED Ultra-speed endpoint with maximum Performance Dyno utilization"""
     try:
-        # MAXIMUM VELOCITY Configuration (WhatsApp API Optimized)
+        # ULTRA EXTREME VELOCITY Configuration (MAXIMUM SPEED UNLEASHED)
         heroku_config = {
-            'max_workers': 10000,       # MAXIMUM workers for Heroku Performance-L
-            'batch_size': 2000,         # Larger batches for maximum throughput
-            'thread_multiplier': 500,   # Maximum thread multiplier
-            'connection_pool_size': 3000, # Massive HTTP connection pool
-            'rate_limit_delay': 0.00001,  # Ultra-minimal delay (0.01ms)
+            'max_workers': 25000,       # EXTREME workers - MAXIMUM POSSIBLE
+            'batch_size': 10000,        # MASSIVE batches - 5x increase
+            'thread_multiplier': 2000,  # EXTREME parallelism - 4x increase  
+            'connection_pool_size': 15000, # ULTRA-MASSIVE connection pool - 5x increase
+            'rate_limit_delay': 0.000001,  # ULTRA-minimal delay (0.001ms) - 10x faster
             'burst_mode': True,         # Enable burst mode
-            'api_calls_per_second': 2000  # WhatsApp can handle 2000+ calls/second
+            'api_calls_per_second': 10000  # MAXIMUM API calls - 5x increase (10K/second)
         }
         
         data = request.get_json()
@@ -1360,7 +1360,7 @@ def ultra_speed_heroku_optimized():
             # Force refresh WhatsApp service
             whatsapp_service._refresh_credentials()
         
-        logging.info(f"🚀 MAXIMUM VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
+        logging.info(f"🚀 ULTRA EXTREME VELOCITY MODE: {heroku_config['max_workers']} workers, batch {heroku_config['batch_size']}, {heroku_config['api_calls_per_second']} calls/sec")
         
         if not leads_text or not template_names or not phone_number_ids:
             return jsonify({'error': 'Dados obrigatórios ausentes'}), 400
@@ -1472,12 +1472,12 @@ def ultra_speed_heroku_optimized():
             # Rate-limited processing to prevent API limits
             import time
             
-            # MAXIMUM VELOCITY - WhatsApp API Optimized processing
-            batch_size = heroku_config['batch_size']  # Ultra-large batches (2000)
-            # Calculate optimal workers based on leads and configuration
-            optimal_workers = min(heroku_config['max_workers'], len(leads) * 5, 5000)
-            max_workers = optimal_workers  # Dynamic scaling based on leads
-            delay_between_batches = heroku_config['rate_limit_delay']  # Ultra-minimal delay (0.00001s)
+            # ULTRA EXTREME VELOCITY - MAXIMUM POSSIBLE SPEED
+            batch_size = heroku_config['batch_size']  # MASSIVE batches (10000)
+            # Calculate EXTREME workers - NO LIMITS, MAXIMUM SPEED
+            optimal_workers = min(heroku_config['max_workers'], len(leads) * 50, 25000)  # 50x multiplier, up to 25K workers
+            max_workers = optimal_workers  # EXTREME scaling based on leads
+            delay_between_batches = heroku_config['rate_limit_delay']  # ULTRA-minimal delay (0.000001s)
             
             # BATCH PROCESSING - Prevents thread exhaustion and system crashes
             import gc
@@ -1502,7 +1502,7 @@ def ultra_speed_heroku_optimized():
                 gc.collect()
                 if batch_end < len(leads):
                     time.sleep(delay_between_batches)
-                    logging.info(f"⚡ MAXIMUM VELOCITY BATCH: {batch_end}/{len(leads)} processed - {heroku_config['api_calls_per_second']} calls/sec")
+                    logging.info(f"🚀 ULTRA EXTREME VELOCITY BATCH: {batch_end}/{len(leads)} processed - {heroku_config['api_calls_per_second']} calls/sec - {max_workers} workers")
             
             # Final memory cleanup and status update
             gc.collect()
@@ -1518,11 +1518,14 @@ def ultra_speed_heroku_optimized():
         
         return jsonify({
             'success': True,  
-            'message': f'MAXIMUM VELOCITY processing started for {len(leads)} leads',
+            'message': f'🚀 ULTRA EXTREME VELOCITY processing started for {len(leads)} leads',
             'leads': len(leads),
             'phones': len(phone_number_ids),
             'templates': len(template_names),
-            'mode': f'MAXIMUM VELOCITY MODE - Dynamic scaling, {heroku_config["api_calls_per_second"]} calls/sec',
+            'mode': f'ULTRA EXTREME VELOCITY MODE - 25K workers, {heroku_config["api_calls_per_second"]} calls/sec, 50x multiplier',
+            'max_workers': heroku_config['max_workers'],
+            'batch_size': heroku_config['batch_size'],
+            'api_rate': heroku_config['api_calls_per_second'],
             'dyno': dyno_info['dyno'],
             'session_id': session_id,
             'heroku_optimized': HerokuConfig.is_heroku()
