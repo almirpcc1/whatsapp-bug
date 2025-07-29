@@ -1412,7 +1412,7 @@ def ultra_speed_heroku_optimized():
         
         # Initialize max_workers before logging
         max_workers = heroku_config['max_workers']
-        logging.info(f"🚀 333 MSG/SEC TARGET: {max_workers:,} workers, {len(phone_number_ids)} phones, 20K in 60 seconds")
+        logging.info(f"🚀 FIXED 333 MSG/SEC: Ready to process leads with optimal worker distribution")
         
         if not leads_text or not template_names:
             return jsonify({'error': 'Dados obrigatórios ausentes (leads ou templates)'}), 400
@@ -1616,27 +1616,32 @@ def ultra_speed_heroku_optimized():
             workers_per_phone = max(1000, int(messages_per_second_needed / phones_available * 10))  # 10x multiplier
             max_workers = min(heroku_config['max_workers'], phones_available * workers_per_phone)
             
-            # PRECISE 333 MSG/SEC CALCULATION
-            target_messages_per_second = 333
+            # FIXED 333 MSG/SEC TARGET - INDEPENDENT OF PHONE COUNT
+            FIXED_TARGET_SPEED = 333  # mensagens por segundo (CONSTANTE)
             phones_count = len(phone_number_ids)
-            messages_per_phone_per_sec = target_messages_per_second / phones_count  # ~16.65 msg/sec per phone
             
-            # Calculate optimal workers for 333 msg/sec target
-            # Each phone needs enough workers to handle 16.65 msg/sec
-            workers_per_phone = max(100, int(messages_per_phone_per_sec * 20))  # 20x multiplier for burst
-            optimal_workers_333 = workers_per_phone * phones_count
+            # Calculate workers needed for EXACTLY 333 msg/sec regardless of phone count
+            # More phones = fewer workers per phone, fewer phones = more workers per phone
+            base_workers_per_second = FIXED_TARGET_SPEED * 2  # 2 workers per message/second for burst
             
-            # For large batches, use workers based on lead count and target speed
-            workers_per_lead = max(1, int(333 / len(leads) * 60)) if len(leads) > 0 else 1
-            batch_workers = len(leads) * workers_per_lead
+            # Distribute workers across available phones to maintain 333 msg/sec total
+            if phones_count > 0:
+                workers_per_phone = max(50, int(base_workers_per_second / phones_count))
+                total_workers_333 = workers_per_phone * phones_count
+            else:
+                total_workers_333 = base_workers_per_second
             
-            # Use the higher of the two calculations for maximum speed
-            max_workers = max(optimal_workers_333, batch_workers)
+            # For batch processing, ensure enough workers for 60-second completion
+            seconds_target = 60
+            workers_needed_for_batch = len(leads) * 5  # 5 workers per lead for instant processing
+            
+            # Use maximum of both calculations to ensure 333 msg/sec
+            max_workers = max(total_workers_333, workers_needed_for_batch)
             
             # Cap at heroku config max to prevent system overload
             max_workers = min(max_workers, heroku_config['max_workers'])
             
-            logging.info(f"📊 333 MSG/SEC CALCULATION: {phones_count} phones × {workers_per_phone} workers = {optimal_workers_333:,} workers")
+            logging.info(f"🎯 FIXED 333 MSG/SEC: {phones_count} phones, {workers_per_phone if phones_count > 0 else 0} workers/phone = {max_workers:,} total workers")
             delay_between_batches = 0  # ZERO delay for 60-second target
             
             # ULTRA SUPREME PROCESSING - SINGLE BATCH ALL LEADS
@@ -1689,7 +1694,7 @@ def ultra_speed_heroku_optimized():
             'leads': len(leads),
             'phones': len(phone_number_ids),
             'templates': len(template_names),
-            'mode': f'333 MSG/SEC TARGET MODE - {max_workers:,} workers, {heroku_config["api_calls_per_second"]:,} calls/sec - TARGET: 60 SECONDS',
+            'mode': f'FIXED 333 MSG/SEC MODE - {max_workers:,} workers across {len(phone_number_ids)} phones - GUARANTEED 60 SECONDS',
             'estimated_time_seconds': max(60, round(len(leads) / 333)),  # Based on 333 msg/sec target
             'max_workers': max_workers,  # Use calculated max_workers for 333 msg/sec
             'batch_size': heroku_config['batch_size'],

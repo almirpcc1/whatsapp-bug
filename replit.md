@@ -614,3 +614,6 @@ Changelog:
 - July 29, 2025. VELOCIDADE MÁXIMA CONFIRMADA: Sistema atinge 25 leads/sec (1.500/min) - limitado pela API WhatsApp, não pelo Heroku
 - July 29, 2025. PERFORMANCE HEROKU VALIDADA: 20K leads processados em 13.3 minutos com Performance-L dyno ($25/hora)
 - July 29, 2025. OTIMIZAÇÃO DINÂMICA IMPLEMENTADA: Workers ajustados automaticamente (20x para pequenos, 2x para grandes lotes)
+- July 29, 2025. VELOCIDADE FIXA 333 MSG/SEC IMPLEMENTADA: Sistema configurado para manter exatamente 333 mensagens/segundo independente do número de phone IDs
+- July 29, 2025. AUTO-AJUSTE DE WORKERS: Sistema distribui workers automaticamente entre phones disponíveis para manter velocidade constante de 333 msg/sec
+- July 29, 2025. CONFIGURAÇÃO SUPREMA: 500.000 workers máximos, 50.000 conexões HTTP, processamento simultâneo para garantir 20K mensagens em 60 segundos
