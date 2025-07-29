@@ -528,6 +528,9 @@ class WhatsAppSender {
                 const response = await fetch(`/api/progress/${sessionId}`);
                 const data = await response.json();
                 
+                // HEROKU DEBUG: Log API response
+                console.log('HEROKU Progress API Response:', data);
+                
                 if (data.success) {
                     const { sent, total, failed, progress, status } = data;
                     
@@ -553,9 +556,18 @@ class WhatsAppSender {
                     }
                     
                     setTimeout(checkProgress, 500); // Check every 500ms for faster updates
+                } else {
+                    // Handle session not found or error
+                    console.error('HEROKU Progress API Error:', data);
+                    if (data.error && data.error.includes('Session not found')) {
+                        document.getElementById('statusMessage').innerHTML = 
+                            `<i class="fas fa-exclamation-triangle text-warning me-2"></i>Sessão expirada - dados podem ter sido perdidos`;
+                    }
                 }
             } catch (error) {
-                console.error('Error checking progress:', error);
+                console.error('HEROKU Error checking progress:', error);
+                document.getElementById('statusMessage').innerHTML = 
+                    `<i class="fas fa-wifi text-danger me-2"></i>Erro de conexão com servidor`;
             }
         };
         

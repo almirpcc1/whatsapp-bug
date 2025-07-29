@@ -1693,7 +1693,23 @@ def ultra_speed_heroku_optimized():
             # HEROKU DEBUG: Final status update
             with counter_lock:
                 message_counters[session_id]['status'] = 'completed'
-                logging.info(f"🔍 FINAL STATUS: Session {session_id} completed - {message_counters[session_id]}")
+                # HEROKU CRITICAL: Ensure final progress is 100%
+                total_processed = message_counters[session_id]['sent'] + message_counters[session_id]['failed']
+                if total_processed >= message_counters[session_id]['total']:
+                    message_counters[session_id]['progress'] = 100.0
+                logging.info(f"🔍 HEROKU FINAL STATUS: Session {session_id} completed - {message_counters[session_id]}")
+                
+                # HEROKU DEBUG: Keep session alive for 5 minutes for frontend access
+                def cleanup_session():
+                    import time
+                    time.sleep(300)  # 5 minutes
+                    if session_id in message_counters:
+                        del message_counters[session_id]
+                        logging.info(f"🧹 Session {session_id} cleaned up after 5 minutes")
+                
+                import threading
+                cleanup_thread = threading.Thread(target=cleanup_session, daemon=True)
+                cleanup_thread.start()
         
         # Start HEROKU optimized background processing
         import threading
